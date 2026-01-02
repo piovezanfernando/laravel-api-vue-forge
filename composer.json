@@ -1,0 +1,69 @@
+{
+    "name": "piovezanfernando/laravel-api-vue-forge",
+    "type": "library",
+    "description": "Laravel API and Vue.js Code Generator - Database-first approach",
+    "keywords": [
+        "laravel",
+        "api",
+        "vue",
+        "quasar",
+        "generator",
+        "crud",
+        "database-first",
+        "code-generator",
+        "api-generator",
+        "repository-pattern"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fernando Piovezan",
+            "email": "piovezanfernando1@gmail.com"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/piovezanfernando/laravel-api-vue-forge",
+        "issues": "https://github.com/piovezanfernando/laravel-api-vue-forge/issues"
+    },
+    "require": {
+        "php": "^8.1.0",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "illuminate/console": "^10.0|^11.0|^12.0",
+        "laracasts/flash": "^3.2.2",
+        "symfony/var-exporter": "^6.2.5|^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0.7",
+        "mockery/mockery": "^1.5.1",
+        "orchestra/testbench": "^8.0.0|^9.0",
+        "pestphp/pest": "2.x-dev|^2.34",
+        "pestphp/pest-plugin-laravel": "2.x-dev|^2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "PiovezanFernando\\LaravelApiVueForge\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "\\PiovezanFernando\\LaravelApiVueForge\\LaravelApiVueForgeServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
