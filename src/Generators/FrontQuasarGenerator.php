@@ -29,15 +29,16 @@ class FrontQuasarGenerator extends BaseGenerator
         $this->generateGrid();
         $this->generateForm();
         $this->generateModel();
+        $this->registerMenuAndRoute();
     }
 
     protected function generatePage()
     {
         $templateData = view('laravel-api-vue-forge::front.page', $this->variables())->render();
 
-        g_filesystem()->createFile($this->path . '/src/pages/registers/' . $this->pageFileName, $templateData);
+        g_filesystem()->createFile($this->path . '/src/pages/' . $this->pageFileName, $templateData);
 
-        $this->config->commandComment(apiforge_nl().'Page : ' . $this->pageFileName);
+        $this->config->commandComment(apiforge_nl() . 'Page : ' . $this->pageFileName);
         $this->config->commandInfo($this->pageFileName);
     }
 
@@ -45,9 +46,9 @@ class FrontQuasarGenerator extends BaseGenerator
     {
         $templateData = view('laravel-api-vue-forge::front.grid', $this->variables())->render();
 
-        g_filesystem()->createFile($this->path . '/src/components/registers/' . $this->gridFileName, $templateData);
+        g_filesystem()->createFile($this->path . '/src/components/grids/' . $this->gridFileName, $templateData);
 
-        $this->config->commandComment(apiforge_nl().'Grid : ' . $this->gridFileName);
+        $this->config->commandComment(apiforge_nl() . 'Grid : ' . $this->gridFileName);
         $this->config->commandInfo($this->gridFileName);
     }
 
@@ -57,7 +58,7 @@ class FrontQuasarGenerator extends BaseGenerator
 
         g_filesystem()->createFile($this->path . '/src/components/forms/' . $this->formFileName, $templateData);
 
-        $this->config->commandComment(apiforge_nl().'Form : ' . $this->formFileName);
+        $this->config->commandComment(apiforge_nl() . 'Form : ' . $this->formFileName);
         $this->config->commandInfo($this->formFileName);
     }
 
@@ -67,32 +68,31 @@ class FrontQuasarGenerator extends BaseGenerator
 
         g_filesystem()->createFile($this->path . '/src/models/' . $this->modelFileName, $templateData);
 
-        $this->config->commandComment(apiforge_nl().'Model : ' . $this->modelFileName);
+        $this->config->commandComment(apiforge_nl() . 'Model : ' . $this->modelFileName);
         $this->config->commandInfo($this->modelFileName);
     }
 
     public function variables(): array
     {
         return [
-            'fieldOptions'       => implode(','.apiforge_nl_tab(1, 2), $this->generateFields()),
-            'columns'             => implode(','.apiforge_nl_tab(1, 2), $this->generateGridColumn()),
-            'rowData'             => implode(','.apiforge_nl_tab(1, 2), $this->generateRowData()),
-            'fieldsForm'             => implode(''.apiforge_nl_tab(1, 0), $this->generateFieldForm()),
-            'fieldsModel'            => implode(';'.apiforge_nl(1).apiforge_tab( 2), $this->generateFieldsModel()) . ',',
-//            'rules'            => implode(','.apiforge_nl_tab(1, 2), $this->generateRules()) . ',',
+            'fieldOptions' => implode(',' . apiforge_nl_tab(1, 2), $this->generateFields()),
+            'columns' => implode(',' . apiforge_nl_tab(1, 2), $this->generateGridColumn()),
+            'rowData' => implode(',' . apiforge_nl_tab(1, 2), $this->generateRowData()),
+            'fieldsForm' => implode('' . apiforge_nl_tab(1, 0), $this->generateFieldForm()),
+            'fieldsModel' => implode(';' . apiforge_nl(1) . apiforge_tab(2), $this->generateFieldsModel()) . ',',
         ];
     }
 
     public function generateFields(): array
     {
         $fields = [];
-        $fields[] .= '{label: "Ativo", value: "is_active", type: "boolean"}';
-        $fields[] .= '{label: "Data de Criação", value: "created_at", type: "date"}';
-        $fields[] .= '{label: "Data de atualização", value: "updated_at", type: "date"}';
+        $fields[] = '{label: "Ativo", value: "is_active", type: "boolean"}';
+        $fields[] = '{label: "Data de Criação", value: "created_at", type: "date"}';
+        $fields[] = '{label: "Data de atualização", value: "updated_at", type: "date"}';
         foreach ($this->config->fields as $field) {
             if ($field->isFillable) {
-                $fields[] .= '{label: "' . Str::title(str_replace('_', ' ', $field->name)) . '",'
-                    .' value: "'. $field->name . '", type: "'. $this->getTableType($field->dbType) .'"}';
+                $fields[] = '{label: "' . Str::title(str_replace('_', ' ', $field->name)) . '",'
+                    . ' value: "' . $field->name . '", type: "' . $this->getTableType($field->dbType) . '"}';
             }
         }
 
@@ -104,19 +104,19 @@ class FrontQuasarGenerator extends BaseGenerator
         $columns = [];
         foreach ($this->config->fields as $field) {
             if ($field->isFillable) {
-                $columns[] .=
+                $columns[] =
                     "{"
                     . "name: '" . $field->name . "', "
-                    . "label: '". $this->getPrettyName($field->name) . "', "
-                    . "field: '" . $field->name ."', "
+                    . "label: '" . $this->getPrettyName($field->name) . "', "
+                    . "field: '" . $field->name . "', "
                     . "sortable: true, "
                     . "align: 'left', "
                     . ($this->getTableType($field->dbType) == 'string' ? 'style: generateColumnStyle(150)' : '')
                     . "}";
             }
         }
-        $columns[] .= "{name: 'is_active', label: 'Ativo', field: 'is_active', align: 'left' }";
-        $columns[] .= "{name: 'edit', label: 'Editar' }";
+        $columns[] = "{name: 'is_active', label: 'Ativo', field: 'is_active', align: 'left' }";
+        $columns[] = "{name: 'edit', label: 'Editar', align: 'center' }";
 
         return $columns;
     }
@@ -124,23 +124,18 @@ class FrontQuasarGenerator extends BaseGenerator
     public function generateRowData(): array
     {
         $fields = [];
-        $fields[] .= 'id: undefined';
+        $fields[] = 'id: undefined';
 
         foreach ($this->config->fields as $field) {
             if ($field->isFillable) {
                 $type = $this->getTableType($field->dbType) == 'number' ? 0 : "''";
-                $fields[] .=
+                $fields[] =
                     $field->name . ": " . $type;
             }
         }
-        $fields[] .= "created_at: ''";
-        $fields[] .= "updated_at: ''";
-        $fields[] .= "deleted_at: ''";
-        $fields[] .= "created_by: 0";
-        $fields[] .= "updated_by: 0";
-        $fields[] .= "deleted_by: 0";
-        $fields[] .= "company_id: 0";
-
+        $fields[] = "created_at: ''";
+        $fields[] = "updated_at: ''";
+        $fields[] = "deleted_at: ''";
         return $fields;
     }
 
@@ -162,7 +157,7 @@ class FrontQuasarGenerator extends BaseGenerator
     public function generateFieldForm(): array
     {
         $fields = [];
-        $fields[] .= $this->getInputIdField('id', 'Id');
+        $fields[] = $this->getInputIdField('id', 'Id');
 
         foreach ($this->config->fields as $field) {
             if ($field->isFillable) {
@@ -171,7 +166,7 @@ class FrontQuasarGenerator extends BaseGenerator
                 });
 
                 if (!$matchingFields) {
-                    $fields[] .= $this->getInputField($field->name, $this->getPrettyName($field->name));
+                    $fields[] = $this->getInputField($field->name, $this->getPrettyName($field->name));
                 }
             }
         }
@@ -186,7 +181,9 @@ class FrontQuasarGenerator extends BaseGenerator
                v-model="formData.$field"
                label="$label"
                outlined
-               class="q-mb-md"
+               bg-color="slate-50"
+               label-color="slate-400"
+               class="q-mb-md modern-input"
                disable
                readonly
             />
@@ -201,6 +198,9 @@ class FrontQuasarGenerator extends BaseGenerator
                label="$label"
                outlined
                clearable
+               bg-color="white"
+               label-color="slate-500"
+               class="q-mb-md modern-input"
                :disable="formStore.isDisable"
                :readonly="formStore.isDisable"
             />
@@ -211,15 +211,60 @@ class FrontQuasarGenerator extends BaseGenerator
     {
         $fields = [];
         foreach ($this->config->fields as $field) {
-            $fields[] .= $field->name . ': ' . $this->getTableType($field->dbType, true);
+            $fields[] = $field->name . ': ' . $this->getTableType($field->dbType, true);
         }
         return $fields;
     }
 
+    protected function registerMenuAndRoute()
+    {
+        $menuConfigPath = $this->path . 'src/assets/menu-config.json';
+
+        $assetsDir = dirname($menuConfigPath);
+        if (!file_exists($assetsDir)) {
+            mkdir($assetsDir, 0755, true);
+        }
+
+        $menuConfig = [];
+        if (file_exists($menuConfigPath)) {
+            $jsonContent = file_get_contents($menuConfigPath);
+            $menuConfig = json_decode($jsonContent, true) ?? [];
+        }
+
+        $newItem = [
+            'label' => $this->config->modelNames->name,
+            'icon' => 'list_alt',
+            'route' => '/' . $this->config->modelNames->camel,
+            'component' => $this->config->modelNames->name . '.vue',
+            'name' => $this->config->modelNames->camel,
+            'page' => $this->config->modelNames->name . 'Page'
+        ];
+
+        $exists = false;
+        foreach ($menuConfig as $index => $item) {
+            if (isset($item['name']) && $item['name'] === $newItem['name']) {
+                $menuConfig[$index] = $newItem; // Update existing
+                $exists = true;
+                break;
+            }
+        }
+
+        if (!$exists) {
+            $menuConfig[] = $newItem;
+        }
+
+        file_put_contents(
+            $menuConfigPath,
+            json_encode($menuConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+
+        $this->config->commandComment(apiforge_nl() . 'Menu config updated: menu-config.json');
+    }
+
     public function rollback()
     {
-        if ($this->rollbackFile($this->path . '/', $this->serviceFileName)) {
-            $this->config->commandComment('Service file deleted: '.$this->serviceFileName);
+        if ($this->rollbackFile($this->path . 'src/components/forms/', $this->formFileName)) {
+            $this->config->commandComment('Form file deleted: ' . $this->formFileName);
         }
     }
 }

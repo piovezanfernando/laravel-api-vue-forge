@@ -45,6 +45,10 @@ class GeneratorPublishCommand extends PublishBaseCommand
         if ($baseRequest) {
             $this->publishBaseRequest();
         }
+
+        if ($this->confirm('Do you want to setup the SPA route in web.php?', true)) {
+            $this->call('apiforge:setup-spa');
+        }
     }
 
     private function updateRouteServiceProvider()

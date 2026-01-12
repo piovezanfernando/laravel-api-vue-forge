@@ -48,6 +48,8 @@ return [
         'api_test' => base_path('tests/APIs/'),
 
         'frontend' => base_path('front/'),
+
+        'frontend_repository' => 'git@github.com:piovezanfernando/quasar-api-vue-forge.git',
     ],
 
     /*

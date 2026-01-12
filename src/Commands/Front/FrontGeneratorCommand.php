@@ -27,7 +27,6 @@ class FrontGeneratorCommand extends BaseCommand
 
         $this->generateFrontItems();
 
-        $this->performPostActionsWithMigration();
         $this->fireFileCreatedEvent('front');
     }
 

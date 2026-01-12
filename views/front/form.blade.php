@@ -1,9 +1,9 @@
 <template>
-{!! $fieldsForm !!}
+  {!! $fieldsForm !!}
 </template>
 <script setup lang="ts">
   import { useFormStore } from 'stores/form';
-  import { defineProps, ref, toRefs } from 'vue';
+  import { ref, toRefs } from 'vue';
 
   const props = defineProps(['model']);
 

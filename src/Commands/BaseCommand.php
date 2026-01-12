@@ -297,10 +297,19 @@ class BaseCommand extends Command
 
         if (!$this->option('fromTable')) {
             $this->error('This generator only supports --fromTable option. Please specify --fromTable and --table=your_table_name');
-            return 1;
+            throw new \Exception('Missing --fromTable option');
         }
 
         $this->parseFieldsFromTable();
+
+        // Validate that fields were actually loaded
+        if (empty($this->config->fields)) {
+            $this->error('No fields found in table: ' . $this->config->tableName);
+            $this->error('Please verify that the table exists and has columns.');
+            throw new \Exception('No fields loaded from table');
+        }
+
+        $this->info('Loaded ' . count($this->config->fields) . ' fields from table: ' . $this->config->tableName);
     }
 
 

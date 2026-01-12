@@ -2,10 +2,10 @@
 
 Laravel API and Vue.js Code Generator - Database-first approach.
 
-[![Latest Stable Version](http://poser.pugx.org/piovezanfernando/laravel-api-vue-forge/v)](https://packagist.org/packages/piovezanfernando/laravel-api-vue-forge) 
-[![Total Downloads](http://poser.pugx.org/piovezanfernando/laravel-api-vue-forge/downloads)](https://packagist.org/packages/piovezanfernando/laravel-api-vue-forge) 
-[![License](http://poser.pugx.org/piovezanfernando/laravel-api-vue-forge/license)](https://packagist.org/packages/piovezanfernando/laravel-api-vue-forge) 
-[![PHP Version Require](http://poser.pugx.org/piovezanfernando/laravel-api-vue-forge/require/php)](https://packagist.org/packages/piovezanfernando/laravel-api-vue-forge)
+[![Latest Stable Version](https://poser.pugx.org/piovezanfernando/laravel-api-vue-forge/v)](https://packagist.org/packages/piovezanfernando/laravel-api-vue-forge) 
+[![Total Downloads](https://poser.pugx.org/piovezanfernando/laravel-api-vue-forge/downloads)](https://packagist.org/packages/piovezanfernando/laravel-api-vue-forge) 
+[![License](https://poser.pugx.org/piovezanfernando/laravel-api-vue-forge/license)](https://packagist.org/packages/piovezanfernando/laravel-api-vue-forge) 
+[![PHP Version Require](https://poser.pugx.org/piovezanfernando/laravel-api-vue-forge/require/php)](https://packagist.org/packages/piovezanfernando/laravel-api-vue-forge)
 
 Generate high-quality APIs and Vue.js (Quasar) frontends directly from your existing database tables.
 
@@ -32,7 +32,13 @@ composer require piovezanfernando/laravel-api-vue-forge
 php artisan apiforge:publish
 ```
 
-### 2. Generate API from Table
+### 2. Setup Frontend (Optional but Recommended)
+
+```bash
+php artisan apiforge:setup-front
+```
+
+### 3. Generate API from Table
 
 ```bash
 php artisan apiforge:api Post --fromTable --table=posts
@@ -50,6 +56,7 @@ php artisan apiforge:front-quasar Post
 | --- | --- |
 | `apiforge:api` | Generate API from a table |
 | `apiforge:front-quasar` | Generate Quasar-based frontend |
+| `apiforge:setup-front` | Setup the frontend project by cloning the repository |
 | `apiforge:publish` | Publish configuration and base files |
 | `apiforge:rollback` | Rollback generated files |
 | `apiforge:migration` | Generate a migration from table (internal use) |

@@ -17,6 +17,8 @@ use PiovezanFernando\LaravelApiVueForge\Commands\Front\FrontGeneratorCommand;
 use PiovezanFernando\LaravelApiVueForge\Commands\Publish\GeneratorPublishCommand;
 use PiovezanFernando\LaravelApiVueForge\Commands\Publish\PublishTablesCommand;
 use PiovezanFernando\LaravelApiVueForge\Commands\Publish\PublishUserCommand;
+use PiovezanFernando\LaravelApiVueForge\Commands\Publish\SetupFrontCommand;
+use PiovezanFernando\LaravelApiVueForge\Commands\Publish\SetupSpaCommand;
 use PiovezanFernando\LaravelApiVueForge\Commands\RollbackGeneratorCommand;
 use PiovezanFernando\LaravelApiVueForge\Common\FileSystem;
 use PiovezanFernando\LaravelApiVueForge\Common\GeneratorConfig;
@@ -99,6 +101,8 @@ class LaravelApiVueForgeServiceProvider extends ServiceProvider
             GeneratorPublishCommand::class,
             PublishTablesCommand::class,
             PublishUserCommand::class,
+            SetupFrontCommand::class,
+            SetupSpaCommand::class,
 
             RollbackGeneratorCommand::class,
 
