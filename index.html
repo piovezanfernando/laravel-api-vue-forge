@@ -12,7 +12,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/styles.css">
-    <!-- Favicon Space -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
@@ -26,6 +25,7 @@
             <div class="nav-links">
                 <a href="#intro" data-i18n="nav_intro">Introdução</a>
                 <a href="#install" data-i18n="nav_install">Instalação</a>
+                <a href="#config" data-i18n="nav_config">Configuração</a>
                 <a href="#commands" data-i18n="nav_commands">Comandos</a>
                 <a href="#autodocs" data-i18n="nav_autodocs">Auto Docs</a>
                 <button class="lang-switch" id="langSwitch">EN / PT</button>
@@ -89,6 +89,37 @@
         </div>
     </section>
 
+    <section id="config" class="container">
+        <div class="section-head">
+            <h2 data-i18n="config_title">Configuração Detalhada</h2>
+            <p data-i18n="config_subtitle">Personalize como o gerador se comporta através do arquivo
+                config/laravel_api_vue_forge.php.</p>
+        </div>
+
+        <h3 data-i18n="config_paths">Caminhos (Paths)</h3>
+        <p data-i18n="config_paths_p">Defina onde cada arquivo gerado será salvo. Exemplo:</p>
+        <pre><code>'path' => [
+    'model' => app_path('Models/'),
+    'repository' => app_path('Repositories/'),
+    'api_controller' => app_path('Http/Controllers/API/'),
+],</code></pre>
+
+        <h3 data-i18n="config_options">Opções (Options)</h3>
+        <p data-i18n="config_options_p">Controle a lógica de geração:</p>
+        <pre><code>'options' => [
+    'soft_delete' => true,
+    'repository_pattern' => true,
+    'service_pattern' => true,
+    'tests' => true,
+    'localized' => true,
+],</code></pre>
+        <ul style="margin-left: 2rem; color: var(--text-muted);">
+            <li><strong>localized</strong>: Ativa a geração de arquivos de tradução.</li>
+            <li><strong>service_pattern</strong>: Adiciona uma camada de Service entre o Controller e o Repository.</li>
+            <li><strong>repository_pattern</strong>: Utiliza o padrão Repository para abstrair o Eloquent.</li>
+        </ul>
+    </section>
+
     <section id="commands" class="container">
         <div class="section-head">
             <h2 data-i18n="gen_title">Geração de Código</h2>
@@ -96,12 +127,34 @@
         </div>
 
         <h3 data-i18n="api_head">Gerando API (Backend)</h3>
-        <p data-i18n="api_p">Para criar uma API completa para uma tabela:</p>
+        <p data-i18n="api_p">O comando `apiforge:api` cria Controllers, Requests, Resources, Model, Repository e
+            Service.</p>
         <pre><code>php artisan apiforge:api Post --fromTable --table=posts</code></pre>
 
         <h3 data-i18n="front_head">Gerando Frontend</h3>
-        <p data-i18n="front_p">Crie uma interface CRUD no Quasar para o seu recurso:</p>
+        <p data-i18n="front_p">O comando `apiforge:front-quasar` cria uma interface completa baseada no Quasar
+            Framework.</p>
         <pre><code>php artisan apiforge:front-quasar Post</code></pre>
+
+        <h4 data-i18n="cmd_options_title" style="margin-top: 2rem;">Opções Comuns:</h4>
+        <ul style="margin-left: 2rem; color: var(--text-muted); margin-top: 1rem;">
+            <li><code>--fromTable</code>: Lê os campos diretamente do banco de dados.</li>
+            <li><code>--table=TABLE_NAME</code>: Especifica o nome da tabela.</li>
+            <li><code>--skip=migration,tests</code>: Pula a geração de itens específicos.</li>
+            <li><code>--plural=PLURAL_NAME</code>: Define o nome no plural manualmente.</li>
+        </ul>
+    </section>
+
+    <section id="templates" class="container">
+        <div class="section-head">
+            <h2 data-i18n="tpl_title">Customização de Templates</h2>
+            <p data-i18n="tpl_subtitle">Publique e altere os stubs para que o código seja gerado exatamente do seu
+                jeito.</p>
+        </div>
+        <p data-i18n="tpl_cmd">Você pode customizar os stubs de geração publicando-os em seu projeto:</p>
+        <pre><code>php artisan apiforge:publish --templates</code></pre>
+        <p style="color: var(--text-muted);">Os arquivos serão copiados para
+            <code>resources/apiforge/apiforge-generator-templates/</code>.</p>
     </section>
 
     <section id="autodocs" class="container">

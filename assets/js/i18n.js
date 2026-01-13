@@ -2,6 +2,7 @@ const translations = {
     pt: {
         nav_intro: "Introdução",
         nav_install: "Instalação",
+        nav_config: "Configuração",
         nav_commands: "Comandos",
         nav_autodocs: "Auto Docs",
         hero_title: "Forje APIs e Frontends com Maestria",
@@ -18,12 +19,22 @@ const translations = {
         publish_text: "Após instalar, publique os arquivos de configuração:",
         spa_setup_title: "💡 Configuração do SPA",
         spa_setup_p: "Para integrar o frontend Quasar diretamente no seu projeto Laravel como um SPA, utilize:",
+        config_title: "Configuração Detalhada",
+        config_subtitle: "Personalize como o gerador se comporta através do arquivo config/laravel_api_vue_forge.php.",
+        config_paths: "Caminhos (Paths)",
+        config_paths_p: "Defina onde cada arquivo gerado será salvo. Útil para projetos com estruturas customizadas.",
+        config_options: "Opções (Options)",
+        config_options_p: "Controle a geração de Soft Deletes, Service/Repository patterns, Factories, Tests e muito mais.",
         gen_title: "Geração de Código",
         gen_subtitle: "Comandos poderosos para acelerar seu fluxo de trabalho.",
         api_head: "Gerando API (Backend)",
-        api_p: "Para criar uma API completa para uma tabela:",
+        api_p: "O comando `apiforge:api` cria Controllers, Requests, Resources, Model, Repository e Service.",
         front_head: "Gerando Frontend",
-        front_p: "Crie uma interface CRUD no Quasar para o seu recurso:",
+        front_p: "O comando `apiforge:front-quasar` cria uma interface completa baseada no Quasar Framework.",
+        cmd_options_title: "Opções Comuns de Comandos",
+        tpl_title: "Customização de Templates",
+        tpl_subtitle: "Publique e altere os stubs para que o código seja gerado exatamente do seu jeito.",
+        tpl_cmd: "Para publicar os templates:",
         docs_title: "Documentação Automática",
         docs_subtitle: "Integração perfeita com o Laravel API Auto Docs.",
         docs_p: "O ecossistema CoreStack inclui o Laravel API Auto Docs, que analisa suas rotas, controllers e requests para gerar uma documentação Swagger/OpenAPI sempre atualizada.",
@@ -33,6 +44,7 @@ const translations = {
     en: {
         nav_intro: "Introduction",
         nav_install: "Installation",
+        nav_config: "Configuration",
         nav_commands: "Commands",
         nav_autodocs: "Auto Docs",
         hero_title: "Forge APIs and Frontends with Mastery",
@@ -49,12 +61,22 @@ const translations = {
         publish_text: "After installing, publish the configuration files:",
         spa_setup_title: "💡 SPA Setup",
         spa_setup_p: "To integrate the Quasar frontend directly into your Laravel project as an SPA, use:",
+        config_title: "Detailed Configuration",
+        config_subtitle: "Customize how the generator behaves through the config/laravel_api_vue_forge.php file.",
+        config_paths: "Paths",
+        config_paths_p: "Define where each generated file will be saved. Useful for projects with custom structures.",
+        config_options: "Options",
+        config_options_p: "Control the generation of Soft Deletes, Service/Repository patterns, Factories, Tests and more.",
         gen_title: "Code Generation",
         gen_subtitle: "Powerful commands to accelerate your workflow.",
         api_head: "Generating API (Backend)",
-        api_p: "To create a complete API for a table:",
+        api_p: "The `apiforge:api` command creates Controllers, Requests, Resources, Model, Repository, and Service.",
         front_head: "Generating Frontend",
-        front_p: "Create a CRUD interface in Quasar for your resource:",
+        front_p: "The `apiforge:front-quasar` command creates a complete interface based on the Quasar Framework.",
+        cmd_options_title: "Common Command Options",
+        tpl_title: "Template Customization",
+        tpl_subtitle: "Publish and change stubs so that the code is generated exactly your way.",
+        tpl_cmd: "To publish templates:",
         docs_title: "Automatic Documentation",
         docs_subtitle: "Seamless integration with Laravel API Auto Docs.",
         docs_p: "The CoreStack ecosystem includes Laravel API Auto Docs, which analyzes your routes, controllers, and requests to generate always-up-to-date Swagger/OpenAPI documentation.",
@@ -70,7 +92,7 @@ function updateContent() {
     elements.forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[currentLang][key]) {
-            el.innerText = translations[currentLang][key];
+            el.innerHTML = translations[currentLang][key];
         }
     });
 }

@@ -145,6 +145,9 @@ nav {
     border-radius: 8px;
     font-weight: 600;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -186,6 +189,7 @@ section {
 
 .section-head p {
     color: var(--text-muted);
+    font-size: 1.1rem;
 }
 
 .feature-grid {
@@ -211,6 +215,21 @@ section {
     font-size: 2rem;
     color: var(--primary);
     margin-bottom: 1.5rem;
+}
+
+h3 {
+    font-size: 1.75rem;
+    margin: 2rem 0 1rem;
+    color: var(--text-main);
+}
+
+ul {
+    list-style-position: inside;
+    margin-bottom: 1.5rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
 }
 
 /* Code Blocks */
