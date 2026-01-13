@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoreStack Ecosystem - Documentação</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- Favicon Space -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <div class="logo-container">
+                [ LOGO CORESTACK ]
+            </div>
+            <div class="nav-links">
+                <a href="#intro" data-i18n="nav_intro">Introdução</a>
+                <a href="#install" data-i18n="nav_install">Instalação</a>
+                <a href="#commands" data-i18n="nav_commands">Comandos</a>
+                <a href="#autodocs" data-i18n="nav_autodocs">Auto Docs</a>
+                <button class="lang-switch" id="langSwitch">EN / PT</button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero" id="intro">
+        <div class="container">
+            <h1 data-i18n="hero_title">Forje APIs e Frontends com Maestria</h1>
+            <p data-i18n="hero_subtitle">O CoreStack Ecosystem é um conjunto de ferramentas "database-first" para
+                Laravel que gera APIs RESTful, frontends Quasar completos e documentação automática em segundos.</p>
+            <div class="cta-group">
+                <a href="#install" class="btn btn-primary" data-i18n="cta_start">Começar Agora</a>
+                <a href="https://github.com/piovezanfernando/laravel-api-vue-forge" class="btn btn-secondary"><i
+                        class="fab fa-github"></i> GitHub</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="container">
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-database"></i>
+                <h3 data-i18n="feat_db_title">Database First</h3>
+                <p data-i18n="feat_db_p">Gere todo o seu backend a partir do esquema do seu banco de dados existente.
+                    Sem necessidade de definir modelos manualmente.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-layer-group"></i>
+                <h3 data-i18n="feat_arch_title">Arquitetura Limpa</h3>
+                <p data-i18n="feat_arch_p">Implementação nativa de padrões Service e Repository, garantindo um código
+                    organizado e fácil de manter.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fab fa-vuejs"></i>
+                <h3 data-i18n="feat_front_title">Vue + Quasar</h3>
+                <p data-i18n="feat_front_p">Gerador de interface administrativa completo usando Quasar Framework, pronto
+                    para produção e totalmente responsivo.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="install" class="container">
+        <div class="section-head">
+            <h2 data-i18n="install_title">Instalação Simples</h2>
+            <p data-i18n="install_subtitle">Adicione o poder do CoreStack ao seu projeto Laravel existente.</p>
+        </div>
+
+        <div class="code-header"><span>Terminal</span></div>
+        <pre><code>composer require piovezanfernando/laravel-api-vue-forge</code></pre>
+
+        <p data-i18n="publish_text">Após instalar, publique os arquivos de configuração:</p>
+        <pre><code>php artisan apiforge:publish</code></pre>
+
+        <div class="subpath-warning">
+            <h4 data-i18n="spa_setup_title">💡 Configuração do SPA</h4>
+            <p data-i18n="spa_setup_p">Para integrar o frontend Quasar diretamente no seu projeto Laravel como um SPA,
+                utilize:</p>
+            <pre><code>php artisan apiforge:setup-spa</code></pre>
+        </div>
+    </section>
+
+    <section id="commands" class="container">
+        <div class="section-head">
+            <h2 data-i18n="gen_title">Geração de Código</h2>
+            <p data-i18n="gen_subtitle">Comandos poderosos para acelerar seu fluxo de trabalho.</p>
+        </div>
+
+        <h3 data-i18n="api_head">Gerando API (Backend)</h3>
+        <p data-i18n="api_p">Para criar uma API completa para uma tabela:</p>
+        <pre><code>php artisan apiforge:api Post --fromTable --table=posts</code></pre>
+
+        <h3 data-i18n="front_head">Gerando Frontend</h3>
+        <p data-i18n="front_p">Crie uma interface CRUD no Quasar para o seu recurso:</p>
+        <pre><code>php artisan apiforge:front-quasar Post</code></pre>
+    </section>
+
+    <section id="autodocs" class="container">
+        <div class="section-head">
+            <h2 data-i18n="docs_title">Documentação Automática</h2>
+            <p data-i18n="docs_subtitle">Integração perfeita com o Laravel API Auto Docs.</p>
+        </div>
+
+        <p data-i18n="docs_p">O ecossistema CoreStack inclui o <strong>Laravel API Auto Docs</strong>, que analisa suas
+            rotas, controllers e requests para gerar uma documentação Swagger/OpenAPI sempre atualizada.</p>
+
+        <pre><code>composer require piovezanfernando/laravel-api-auto-docs</code></pre>
+
+        <p data-i18n="docs_final">Acesse <code>/api-docs</code> no seu navegador para ver sua API documentada
+            automaticamente, com suporte a exemplos de resposta dinâmicos.</p>
+    </section>
+
+    <footer class="container">
+        <p>&copy; 2026 CoreStack Ecosystem. Criado por <a href="https://github.com/piovezanfernando"
+                style="color: var(--primary);">Fernando Piovezan</a>.</p>
+        <p style="margin-top: 1rem; font-size: 0.8rem;" data-i18n="footer_base">Inspirado pelo InfyOm Laravel Generator.
+        </p>
+    </footer>
+
+    <script src="assets/js/i18n.js"></script>
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
