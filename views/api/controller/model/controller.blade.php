@@ -10,21 +10,12 @@ use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use {{ $config->namespaces->app }}\Http\Controllers\AppBaseController;
-use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
 {!! $docController !!}
-class {{ $config->modelNames->name }}APIController extends AppBaseController implements HasMiddleware
+#[Middleware('auth:api')]
+class {{ $config->modelNames->name }}APIController extends AppBaseController
 {
-    /**
-     * Get the middleware that should be assigned to the controller.
-     */
-    public static function middleware(): array
-    {
-        return [
-            // new Middleware('auth:sanctum'),
-        ];
-    }
     {!! $docIndex !!}
     public function index(Request $request): JsonResponse
     {

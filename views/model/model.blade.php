@@ -14,6 +14,7 @@
 {{'use Rennokki\QueryCache\Traits\QueryCacheable;'}}
 
 @if(isset($swaggerDocs)){!! $swaggerDocs  !!}@endif
+#[Fillable([{!! $fillables !!}])]
 class {{ $config->modelNames->name }} extends BaseModel
 {
 @if($config->options->tests or $config->options->factory){{apiforge_tab(4).'use HasFactory;' }}@nls(1)@endif
@@ -25,14 +26,7 @@ class {{ $config->modelNames->name }} extends BaseModel
      */
     public int $cacheFor = 3600;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected array $fillable = [
-        {!! $fillables !!}
-    ];
+
 
 @if($customPrimaryKey)@tab()protected string $primaryKey = '{{ $customPrimaryKey }}';@nls(2)@endif
 @if($config->connection)@tab()protected string $connection = '{{ $config->connection }}';@nls(2)@endif
