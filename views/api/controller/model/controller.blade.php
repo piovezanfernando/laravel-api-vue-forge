@@ -10,8 +10,10 @@ use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use {{ $config->namespaces->app }}\Http\Controllers\AppBaseController;
+use Illuminate\Routing\Controllers\Middleware;
 
 {!! $docController !!}
+#[Middleware('auth:api')]
 class {{ $config->modelNames->name }}APIController extends AppBaseController
 {
     {!! $docIndex !!}
