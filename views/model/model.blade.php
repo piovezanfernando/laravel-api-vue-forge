@@ -30,14 +30,14 @@ class {{ $config->modelNames->name }} extends BaseModel
      *
      * @var array<int, string>
      */
-    public $fillable = [
+    protected array $fillable = [
         {!! $fillables !!}
     ];
 
-@if($customPrimaryKey)@tab()protected $primaryKey = '{{ $customPrimaryKey }}';@nls(2)@endif
-@if($config->connection)@tab()protected $connection = '{{ $config->connection }}';@nls(2)@endif
-@if(!$timestamps)@tab()public $timestamps = false;@nls(2)@endif
-@if($customSoftDelete)@tab()protected $dates = ['{{ $customSoftDelete }}'];@nls(2)@endif
+@if($customPrimaryKey)@tab()protected string $primaryKey = '{{ $customPrimaryKey }}';@nls(2)@endif
+@if($config->connection)@tab()protected string $connection = '{{ $config->connection }}';@nls(2)@endif
+@if(!$timestamps)@tab()public bool $timestamps = false;@nls(2)@endif
+@if($customSoftDelete)@tab()protected array $dates = ['{{ $customSoftDelete }}'];@nls(2)@endif
 @if($customCreatedAt)@tab()const CREATED_AT = '{{ $customCreatedAt }}';@nls(2)@endif
 @if($customUpdatedAt)@tab()const UPDATED_AT = '{{ $customUpdatedAt }}';@nls(2)@endif
 
@@ -74,7 +74,7 @@ class {{ $config->modelNames->name }} extends BaseModel
      *
      * @var array<int, string>
      */
-    protected $with = [];
+    protected array $with = [];
 
     {!! $relations !!}
 
