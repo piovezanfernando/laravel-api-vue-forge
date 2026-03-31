@@ -11,6 +11,7 @@
 @if(str_contains($relations, 'HasManyThrough')){{'use Illuminate\Database\Eloquent\Relations\HasManyThrough;' }}@nls(1)@endif
 @if(str_contains($relations, 'HasOne')){{'use Illuminate\Database\Eloquent\Relations\HasOne;' }}@nls(1)@endif
 @if($config->options->softDelete){{'use Illuminate\Database\Eloquent\SoftDeletes;' }}@nls(1)@endif
+{{'use Illuminate\Database\Eloquent\Attributes\Fillable;'}}
 {{'use Rennokki\QueryCache\Traits\QueryCacheable;'}}
 
 @if(isset($swaggerDocs)){!! $swaggerDocs  !!}@endif
