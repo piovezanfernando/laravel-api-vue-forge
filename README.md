@@ -18,6 +18,11 @@ Generate high-quality APIs and Vue.js (Quasar) frontends directly from your exis
 - **Automated Tests**: Generates Pest/PHPUnit tests for your APIs and Repositories.
 - **Rollback Support**: Easy rollback of generated files.
 
+## Requirements
+
+- PHP 8.3+
+- Laravel 13.x
+
 ## Installation
 
 ```bash
