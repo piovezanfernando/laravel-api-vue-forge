@@ -5,7 +5,7 @@
 namespace App\Http\Requests\API;
 
 use App\Models\BaseModel;
-use InfyOm\Generator\Request\APIRequest;
+use PiovezanFernando\LaravelApiVueForge\Request\APIRequest;
 
 abstract class BaseRequest extends APIRequest
 {

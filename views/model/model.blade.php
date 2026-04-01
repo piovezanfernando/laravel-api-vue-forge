@@ -14,9 +14,11 @@
 @if(collect($config->fields)->contains('name', 'company_id'))
 use App\Traits\BelongsToCompany;
 @endif
+{{'use Illuminate\Database\Eloquent\Attributes\Fillable;'}}
 {{'use Rennokki\QueryCache\Traits\QueryCacheable;'}}
 
 @if(isset($swaggerDocs)){!! $swaggerDocs  !!}@endif
+#[Fillable([{!! $fillables !!}])]
 class {{ $config->modelNames->name }} extends BaseModel
 {
 @if($config->options->tests or $config->options->factory){{apiforge_tab(4).'use HasFactory;' }}@nls(1)@endif
@@ -31,19 +33,10 @@ class {{ $config->modelNames->name }} extends BaseModel
      */
     public int $cacheFor = 3600;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    public $fillable = [
-        {!! $fillables !!}
-    ];
-
-@if($customPrimaryKey)@tab()protected $primaryKey = '{{ $customPrimaryKey }}';@nls(2)@endif
-@if($config->connection)@tab()protected $connection = '{{ $config->connection }}';@nls(2)@endif
-@if(!$timestamps)@tab()public $timestamps = false;@nls(2)@endif
-@if($customSoftDelete)@tab()protected $dates = ['{{ $customSoftDelete }}'];@nls(2)@endif
+@if($customPrimaryKey)@tab()protected string $primaryKey = '{{ $customPrimaryKey }}';@nls(2)@endif
+@if($config->connection)@tab()protected string $connection = '{{ $config->connection }}';@nls(2)@endif
+@if(!$timestamps)@tab()public bool $timestamps = false;@nls(2)@endif
+@if($customSoftDelete)@tab()protected array $dates = ['{{ $customSoftDelete }}'];@nls(2)@endif
 @if($customCreatedAt)@tab()const CREATED_AT = '{{ $customCreatedAt }}';@nls(2)@endif
 @if($customUpdatedAt)@tab()const UPDATED_AT = '{{ $customUpdatedAt }}';@nls(2)@endif
 
@@ -75,7 +68,7 @@ class {{ $config->modelNames->name }} extends BaseModel
      *
      * @var array<int, string>
      */
-    protected $with = [];
+    protected array $with = [];
 
     {!! $relations !!}
 
