@@ -4,10 +4,10 @@
 
 namespace {{ $config->namespaces->apiRequest }}\{{ $config->modelNames->name }};
 
-use App\Http\Requests\API\BaseAPIRequest;
+use App\Http\Requests\API\BaseRequest;
 use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 
-class Create{{ $config->modelNames->name }}APIRequest extends BaseAPIRequest
+class Create{{ $config->modelNames->name }}APIRequest extends BaseRequest
 {
     /**
      * Configure the Model
