@@ -11,13 +11,16 @@
 @if(str_contains($relations, 'HasManyThrough')){{'use Illuminate\Database\Eloquent\Relations\HasManyThrough;' }}@nls(1)@endif
 @if(str_contains($relations, 'HasOne')){{'use Illuminate\Database\Eloquent\Relations\HasOne;' }}@nls(1)@endif
 @if($config->options->softDelete){{'use Illuminate\Database\Eloquent\SoftDeletes;' }}@nls(1)@endif
+use App\Traits\BelongsToCompany;
 {{'use Rennokki\QueryCache\Traits\QueryCacheable;'}}
+
 
 @if(isset($swaggerDocs)){!! $swaggerDocs  !!}@endif
 class {{ $config->modelNames->name }} extends BaseModel
 {
 @if($config->options->tests or $config->options->factory){{apiforge_tab(4).'use HasFactory;' }}@nls(1)@endif
 {{ apiforge_tab(4).'use QueryCacheable;' }}
+    use BelongsToCompany;
 @if($config->options->softDelete) {{ apiforge_tab(3).'use SoftDeletes;' }}@nls(1)@endif
 
     /**
