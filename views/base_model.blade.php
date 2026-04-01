@@ -4,17 +4,22 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToCompany;
 use App\Traits\CustomSoftDelete;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use DateTimeInterface;
+use ReflectionClass;
+use ReflectionMethod;
+use Throwable;
 
 abstract class BaseModel extends Model
 {
+    use BelongsToCompany;
     use CustomSoftDelete;
     use HasFactory;
     use HasUlids;
@@ -27,11 +32,6 @@ abstract class BaseModel extends Model
     ];
 
     /**
-     * This attribute checks if the table is multi tenancy
-     */
-    protected bool $hasCompanyId = true;
-
-    /**
      * Informs which fields should not be saved in uppercase if the trait is used
      */
     protected array $noUpper = [];
@@ -42,26 +42,39 @@ abstract class BaseModel extends Model
     protected array $relationsBySearch = [];
 
     /**
-     * Returns the field types to be used in queries
+     * Returns the casts array (memoized to avoid repeated instantiation)
      */
     public static function getCastsStatic(): array
     {
-        return (new static())->getCasts();
+        return once(fn () => (new static())->getCasts());
     }
 
     /**
-     * Function responsible for returning the type of the field for the query
+     * Returns the cast type for a given field, or null if the field has no cast
      */
-    public static function getFieldType(string $field): string
+    public static function getFieldType(string $field): ?string
     {
-        if (array_key_exists($field, static::getCastsStatic())) {
-            return (new static())->getCastType($field);
+        if (! array_key_exists($field, static::getCastsStatic())) {
+            return null;
         }
-        return false;
+
+        return (new static())->getCastType($field);
+    }
+
+    /**
+     * Returns the description of the fields for API documentation
+     *
+     * @return array<string, array<string, string>>
+     */
+    public static function getFieldDescription(): array
+    {
+        return [];
     }
 
     /**
      * Method to return the relationships that can be queried
+     *
+     * @return array<int, string>
      */
     public function getRelationsBySearch(): array
     {
@@ -69,58 +82,53 @@ abstract class BaseModel extends Model
     }
 
     /**
-     * Returns if the company ID is used in the model
-     */
-    public function hasCompanyId(): bool
-    {
-        return $this->hasCompanyId;
-    }
-
-    /**
      * Returns if the record is active according to the deleted_at field
      */
     protected function isActive(): Attribute
     {
-        return new Attribute(
-            get: fn() => empty($this->deleted_at),
-        );
+        return Attribute::get(fn () => is_null($this->deleted_at));
     }
 
     /**
      * Prepare a date for array / JSON serialization.
      */
-    protected function serializeDate(\DateTimeInterface $date): string
+    protected function serializeDate(DateTimeInterface $date): string
     {
         return $date->format('Y-m-d H:i:s');
     }
 
-     * Get the relationships of the model
-     * @return Collection
+    /**
+     * Get the relationships of the model via reflection (memoized)
      */
     public function getRelationShip(): Collection
     {
-        $model = $this;
-        $relationships = collect();
-        foreach ((new \ReflectionClass($model))->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-            if (
-                $method->class != get_class($model) ||
-                !empty($method->getParameters()) ||
-                $method->getName() == __FUNCTION__
-            ) {
-                continue;
-            }
-            try {
-                $return = $method->invoke($model);
-                if ($return instanceof Relation) {
-                    $relationships->push([
-                                             'name' => $method->getName(),
-                                             'type' => (new \ReflectionClass($return))->getShortName(),
-                                             'model' => (new \ReflectionClass($return->getRelated()))->getName()
-                                         ]);
+        return once(function () {
+            $relationships = collect();
+
+            foreach ((new ReflectionClass($this))->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+                if (
+                    $method->class !== $this::class ||
+                    $method->getNumberOfParameters() > 0 ||
+                    $method->getName() === __FUNCTION__
+                ) {
+                    continue;
                 }
-            } catch (\Throwable $e) {
+
+                try {
+                    $return = $method->invoke($this);
+
+                    if ($return instanceof Relation) {
+                        $relationships->push([
+                            'name'  => $method->getName(),
+                            'type'  => (new ReflectionClass($return))->getShortName(),
+                            'model' => $return->getRelated()::class,
+                        ]);
+                    }
+                } catch (Throwable) {
+                }
             }
-        }
-        return $relationships;
+
+            return $relationships;
+        });
     }
 }

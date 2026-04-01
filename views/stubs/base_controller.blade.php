@@ -4,9 +4,10 @@
 
 namespace {{ $namespaceApp }}Http\Controllers;
 
-use InfyOm\Generator\Utils\ResponseUtil;
-
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use InfyOm\Generator\Utils\ResponseUtil;
 
 /**
  * @OA\Server(url="/{{ $apiPrefix }}")
@@ -19,9 +20,6 @@ use Illuminate\Support\Str;
  */
 class BaseController extends Controller
 {
-    /**
-     * @var string
-     */
     protected string $resourceClass;
 
     public function __construct()
@@ -30,86 +28,88 @@ class BaseController extends Controller
     }
 
     /**
-     * Magic method used to instantiate the service class at the time of use by the methods
+     * Magic method used to lazily instantiate the service class on first access
+     *
      * @throws \Exception
      */
-    public function __get(string $name)
+    public function __get(string $name): mixed
     {
         $expectedName = Str::camel(class_basename($this->serviceClass()));
 
         if ($name === $expectedName) {
-            return $this->{$name} ?? ($this->{$name} = app($this->serviceClass()));
+            return $this->{$name} ??= app($this->serviceClass());
         }
 
-        throw new \Exception("Property $name does not exist.");
+        throw new \Exception("Property {$name} does not exist.");
     }
+
     /**
      * Clean and format the return in JSON pattern
      */
-    public function sendResponse(Mixed $result, String $message): JsonResponse
+    public function sendResponse(mixed $result, string $message): JsonResponse
     {
-        unset($result['first_page_url']);
-        unset($result['next_page_url']);
-        unset($result['prev_page_url']);
-        unset($result['last_page_url']);
-        unset($result['path']);
-        unset($result['links']);
-        return response()->json(ResponseUtil::makeResponse($message, $result));
+        $cleaned = is_array($result)
+            ? Arr::except($result, ['first_page_url', 'next_page_url', 'prev_page_url', 'last_page_url', 'path', 'links'])
+            : $result;
+
+        return response()->json(ResponseUtil::makeResponse($message, $cleaned));
     }
 
     /**
-     * Format the return in JSON pattern
+     * Format the return as a JSON error response
      */
-    public function sendError(String $error, int $code = 404): JsonResponse
+    public function sendError(string $error, int $code = 404): JsonResponse
     {
         return response()->json(ResponseUtil::makeError($error), $code);
     }
 
     /**
-     * Formats the return in JSON pattern, unique for success return
+     * Format a simple success JSON response
      */
-    public function sendSuccess($message): JsonResponse
+    public function sendSuccess(string $message): JsonResponse
     {
-        return Response::json([
-                                  'success' => true,
-                                  'message' => $message
-                              ]);
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+        ]);
     }
 
     /**
-     * Formats the return in JSON pattern, passed the return code in the message array
+     * Route a response array to success or error based on the code key
+     *
+     * @param array{code: int, message: string} $message
      */
-    public function response(array $message): JsonResponse
+    public function sendResult(array $message): JsonResponse
     {
-        if ($message['code'] == 200) {
-            return response()->json(ResponseUtil::makeResponse($message['message'], []));
-        }
-
-        return response()->json(ResponseUtil::makeError($message['message']), $message['code']);
+        return match (true) {
+            $message['code'] === 200 => response()->json(ResponseUtil::makeResponse($message['message'], [])),
+            default                  => response()->json(ResponseUtil::makeError($message['message']), $message['code']),
+        };
     }
 
     /**
-     * Initializes the resourceClass property based on the current route and controller name
+     * Initializes the resourceClass property based on the controller name
      */
     protected function initializeResourceClass(): void
     {
-        $modelName = str_replace('APIController', '', class_basename(get_called_class()));
+        $modelName = str_replace('APIController', '', class_basename(static::class));
         $baseNamespace = 'App\\Http\\Resources\\API';
         $this->resourceClass = "{$baseNamespace}\\{$modelName}Resource";
     }
 
     /**
-     * Returns the service class based on the controller that is accessing the method
+     * Returns the service class based on the controller that is accessing
+     *
      * @throws \Exception
      */
     protected function serviceClass(): string
     {
-        $callingClass = class_basename(get_called_class());
+        $callingClass = class_basename(static::class);
         $serviceName = str_replace('APIController', 'Service', $callingClass);
-        $serviceClass = "App\\Services\\$serviceName";
+        $serviceClass = "App\\Services\\{$serviceName}";
 
-        if (!class_exists($serviceClass)) {
-            throw new \Exception("Class $serviceClass not found.");
+        if (! class_exists($serviceClass)) {
+            throw new \Exception("Class {$serviceClass} not found.");
         }
 
         return $serviceClass;

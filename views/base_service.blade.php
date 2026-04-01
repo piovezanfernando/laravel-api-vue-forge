@@ -6,42 +6,23 @@ namespace App\Services;
 
 use App\Models\BaseModel;
 use App\Repositories\BaseRepository;
-use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 
 abstract class BaseService
 {
-    protected Request $request;
-    protected BaseRepository $repository;
-
-    public function __construct()
-    {
-        $this->makeModel();
-    }
-
     /**
-     * Make Model instance
+     * Repository is injected via Laravel's container when the child service is resolved.
+     * Each child class declares its own constructor with the concrete repository type.
+     *
+     * Example in generated service:
+     *   public function __construct(protected readonly UserRepository $repository) {}
      */
-    public function makeModel(): BaseRepository
-    {
-        $baseRepo = App::make($this->repo());
-        if (!$baseRepo instanceof BaseRepository) {
-            throw new Exception('Class {$this->repo()} must be an instance of BaseRepository');
-        }
-        $this->repository = $baseRepo;
-        return $this->repository;
-    }
+    public function __construct(protected readonly BaseRepository $repository) {}
 
     /**
-     * Configure the repository
-     */
-    abstract public function repo(): string|BaseRepository;
-
-    /**
-     * Call repository to create one record
+     * Create a record from the request data
      */
     public function create(Request $request): BaseModel|Model
     {
@@ -49,7 +30,9 @@ abstract class BaseService
     }
 
     /**
-     * Call repository to deactivate or activate record in database
+     * Toggle soft-delete state of a record
+     *
+     * @return array{code: int, message: string}
      */
     public function delete(BaseModel $model): array
     {
@@ -57,7 +40,7 @@ abstract class BaseService
     }
 
     /**
-     * Call repository to find a record according to param of search
+     * Execute search with pagination
      */
     public function search(Request $request): LengthAwarePaginator
     {
@@ -65,15 +48,7 @@ abstract class BaseService
     }
 
     /**
-     * Set property request to use in methods inside class
-     */
-    public function setRequest(Request $request): void
-    {
-        $this->request = $request;
-    }
-
-    /**
-     * Call repository to update record according id
+     * Update a record from the request data
      */
     public function update(Request $request, BaseModel $model): BaseModel|Model
     {

@@ -30,12 +30,15 @@ class GeneratorPublishCommand extends PublishBaseCommand
         $baseRequest = config('laravel_api_vue_forge.options.base_request', true);
 
         if ($repositoryPattern) {
+            $this->publishModelCreate();
+            $this->publishSearchService();
             $this->publishBaseRepository();
         }
         if ($this->option('localized')) {
             $this->publishLocaleFiles();
         }
         if ($baseModel) {
+            $this->publishBelongsToCompany();
             $this->publishBaseModel();
         }
         if ($baseService) {
@@ -105,6 +108,27 @@ class GeneratorPublishCommand extends PublishBaseCommand
         $this->info('BaseController created');
     }
 
+    private function publishBelongsToCompany()
+    {
+        $traitsPath = app_path('Traits/');
+
+        $fileName = 'BelongsToCompany.php';
+
+        if (file_exists($traitsPath.$fileName) && !$this->confirmOverwrite($fileName)) {
+            return;
+        }
+
+        g_filesystem()->createDirectoryIfNotExist($traitsPath);
+
+        $templateData = view('laravel-api-vue-forge::stubs.belongs_to_company', [
+            'namespaceApp' => $this->getLaravel()->getNamespace(),
+        ])->render();
+
+        g_filesystem()->createFile($traitsPath.$fileName, $templateData);
+
+        $this->info('BelongsToCompany trait created');
+    }
+
     private function publishBaseModel()
     {
         $templateData = view('laravel-api-vue-forge::base_model', [
@@ -145,6 +169,48 @@ class GeneratorPublishCommand extends PublishBaseCommand
         g_filesystem()->createFile($modelPath.$fileName, $templateData);
 
         $this->info('BaseRequest created');
+    }
+
+    private function publishModelCreate()
+    {
+        $repositoryPath = app_path('Repositories/');
+
+        $fileName = 'ModelCreate.php';
+
+        if (file_exists($repositoryPath.$fileName) && !$this->confirmOverwrite($fileName)) {
+            return;
+        }
+
+        g_filesystem()->createDirectoryIfNotExist($repositoryPath);
+
+        $templateData = view('laravel-api-vue-forge::stubs.model_create', [
+            'namespaceApp' => $this->getLaravel()->getNamespace(),
+        ])->render();
+
+        g_filesystem()->createFile($repositoryPath.$fileName, $templateData);
+
+        $this->info('ModelCreate created');
+    }
+
+    private function publishSearchService()
+    {
+        $servicePath = app_path('Services/');
+
+        $fileName = 'SearchService.php';
+
+        if (file_exists($servicePath.$fileName) && !$this->confirmOverwrite($fileName)) {
+            return;
+        }
+
+        g_filesystem()->createDirectoryIfNotExist($servicePath);
+
+        $templateData = view('laravel-api-vue-forge::stubs.search_service', [
+            'namespaceApp' => $this->getLaravel()->getNamespace(),
+        ])->render();
+
+        g_filesystem()->createFile($servicePath.$fileName, $templateData);
+
+        $this->info('SearchService created');
     }
 
     private function publishBaseRepository()

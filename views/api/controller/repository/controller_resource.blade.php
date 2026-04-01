@@ -4,7 +4,6 @@
 
 namespace {{ $config->namespaces->apiController }};
 
-use App\Exceptions\ValidateDeleteException;
 use {{ $namespaceApp }}\Http\Controllers\BaseController;
 use {{ $config->namespaces->apiRequest }}\Index\IndexAPIRequest;
 use {{ $config->namespaces->apiRequest }}\{{ $config->modelNames->name }}APIRequest;
@@ -15,10 +14,14 @@ use Illuminate\Http\JsonResponse;
 {!! $docController !!}
 class {{ $config->modelNames->name }}APIController extends BaseController
 {
+    public function __construct(private readonly {{ $config->modelNames->name }}Service ${{$config->modelNames->camel}}Service)
+    {
+    }
+
     {!! $docDestroy !!}
     public function destroy({{ $config->modelNames->name }} ${{ $config->modelNames->camel }}): JsonResponse
     {
-        return $this->response($this->{{$config->modelNames->camel}}Service->delete(${{ $config->modelNames->camel }}));
+        return $this->sendResult($this->{{$config->modelNames->camel}}Service->delete(${{ $config->modelNames->camel }}));
     }
 
     {!! $docIndex !!}
@@ -47,8 +50,7 @@ class {{ $config->modelNames->name }}APIController extends BaseController
     {!! $docStore !!}
     public function store({{ $config->modelNames->name }}APIRequest $request): JsonResponse
     {
-        $this->{{$config->modelNames->camel}}Service->setRequest($request);
-        ${{ $config->modelNames->camel }} = $this->{{$config->modelNames->camel}}Service->create();
+        ${{ $config->modelNames->camel }} = $this->{{$config->modelNames->camel}}Service->create($request);
         $resource = $this->resourceClass::make(${{ $config->modelNames->camel }});
 
         return $this->sendResponse(
@@ -60,8 +62,7 @@ class {{ $config->modelNames->name }}APIController extends BaseController
     {!! $docUpdate !!}
     public function update({{ $config->modelNames->name }}APIRequest $request, {{ $config->modelNames->name }} ${{ $config->modelNames->camel }}): JsonResponse
     {
-        $this->{{$config->modelNames->camel}}Service->setRequest($request);
-        ${{ $config->modelNames->camel }} = $this->{{$config->modelNames->camel}}Service->update(${{ $config->modelNames->camel }});
+        ${{ $config->modelNames->camel }} = $this->{{$config->modelNames->camel}}Service->update($request, ${{ $config->modelNames->camel }});
         $resource = $this->resourceClass::make(${{ $config->modelNames->camel }});
 
         return $this->sendResponse(
