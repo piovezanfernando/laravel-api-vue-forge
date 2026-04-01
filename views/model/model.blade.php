@@ -11,16 +11,19 @@
 @if(str_contains($relations, 'HasManyThrough')){{'use Illuminate\Database\Eloquent\Relations\HasManyThrough;' }}@nls(1)@endif
 @if(str_contains($relations, 'HasOne')){{'use Illuminate\Database\Eloquent\Relations\HasOne;' }}@nls(1)@endif
 @if($config->options->softDelete){{'use Illuminate\Database\Eloquent\SoftDeletes;' }}@nls(1)@endif
+@if(collect($config->fields)->contains('name', 'company_id'))
 use App\Traits\BelongsToCompany;
+@endif
 {{'use Rennokki\QueryCache\Traits\QueryCacheable;'}}
-
 
 @if(isset($swaggerDocs)){!! $swaggerDocs  !!}@endif
 class {{ $config->modelNames->name }} extends BaseModel
 {
 @if($config->options->tests or $config->options->factory){{apiforge_tab(4).'use HasFactory;' }}@nls(1)@endif
 {{ apiforge_tab(4).'use QueryCacheable;' }}
+@if(collect($config->fields)->contains('name', 'company_id'))
     use BelongsToCompany;
+@endif
 @if($config->options->softDelete) {{ apiforge_tab(3).'use SoftDeletes;' }}@nls(1)@endif
 
     /**
@@ -61,12 +64,7 @@ class {{ $config->modelNames->name }} extends BaseModel
     protected static bool $flushCacheOnUpdate = true;
 
     /**
-     * Check if the model uses the tentant id field
-     */
-    protected bool $hasTenantId = true;
-
-    /**
-     * Responsible for determining which relationships will be used in queries
+     * Informs which relations should be used in the search
      *
      * @var array<int, string>
      */

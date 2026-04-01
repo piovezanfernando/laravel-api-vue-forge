@@ -4,7 +4,6 @@
 
 namespace App\Models;
 
-use App\Traits\BelongsToCompany;
 use App\Traits\CustomSoftDelete;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -19,7 +18,6 @@ use Throwable;
 
 abstract class BaseModel extends Model
 {
-    use BelongsToCompany;
     use CustomSoftDelete;
     use HasFactory;
     use HasUlids;
@@ -35,6 +33,11 @@ abstract class BaseModel extends Model
      * Informs which fields should not be saved in uppercase if the trait is used
      */
     protected array $noUpper = [];
+
+    /**
+     * Check if the model uses the tenant id field
+     */
+    protected bool $hasTenantId = false;
 
     /**
      * Informs which relations should be used in the search
