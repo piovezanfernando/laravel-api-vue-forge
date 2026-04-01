@@ -14,8 +14,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
-use Vinkla\Hashids\Facades\Hashids;
+use Exception;
+use ReflectionClass;
+use Throwable;
 
 abstract class BaseRepository
 {
@@ -90,11 +94,16 @@ abstract class BaseRepository
     /**
      * Create model record
      */
-    public function create(array $input): Model|null
-    {
-        $baseModel = $this->model->newInstance($input);
-        $baseModel->save();
-        return $baseModel;
+    public function create(
+        array $input,
+        ?SupportCollection $relationToSync = null
+    ): Model|null {
+        return DB::transaction(function () use ($input, $relationToSync) {
+            $baseModel = $this->model->newInstance($input);
+            $baseModel->save();
+            $this->syncRelations($relationToSync, $baseModel);
+            return $baseModel;
+        });
     }
 
     /**
@@ -114,9 +123,12 @@ abstract class BaseRepository
      */
     public function delete(int $id): bool|null
     {
-        $query = $this->newBaseQuery();
-        $baseModel = $query->findOrFail($id);
-        return $baseModel->delete();
+        return DB::transaction(function () use ($id) {
+            $query = $this->newBaseQuery();
+            $baseModel = $query->findOrFail($id);
+            $this->validateExistRelationship($baseModel);
+            return $baseModel->delete();
+        });
     }
 
     /**
@@ -159,9 +171,6 @@ abstract class BaseRepository
      */
     public function find(int|string $id): Builder|Collection|BaseModel|null
     {
-        if (!is_numeric($id)) {
-            $id = (int) Hashids::connection('main')->decodeHex($id);
-        }
         $query = $this->newBaseQuery();
         return $query->find($id);
     }
@@ -227,7 +236,7 @@ abstract class BaseRepository
                 try {
                     $class->flushQueryCache();
                     $ret[$model['name']] = 'Limpeza de cache executado com sucesso';
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $ret[$model['name']] = $e;
                 }
             } else {
@@ -323,7 +332,7 @@ abstract class BaseRepository
     {
         $baseModel = $this->app->make($this->model());
         if (!$baseModel instanceof Model) {
-            throw new \Exception('Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model');
+            throw new Exception('Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model');
         }
         $this->model = $baseModel;
         return $this->model;
@@ -381,7 +390,7 @@ abstract class BaseRepository
                     $idInserted = $baseModel->{$relation}()->updateOrCreate(['id' => $value['id'] ?? null], $value);
                     $id[] = $idInserted->id;
                 }
-                $modelRelation = (new \ReflectionClass(
+                $modelRelation = (new ReflectionClass(
                     get_class($this->model->{Str::ucfirst($relation)}()->getRelated())
                 ))
                     ->newInstanceWithoutConstructor()->newQuery();
@@ -390,7 +399,7 @@ abstract class BaseRepository
                     ->where(Str::singular($this->model->getTable()).'_id', $baseModel->id);
                 foreach ($modelRelation->get() as $value) {
                     if (!empty($value)) {
-                        (new \ReflectionClass(get_class($this->model->{Str::ucfirst($relation)}()->getRelated())))
+                        (new ReflectionClass(get_class($this->model->{Str::ucfirst($relation)}()->getRelated())))
                             ->newInstanceWithoutConstructor()->newQuery()->find($value->id)->delete();
                     }
                 }
@@ -412,10 +421,16 @@ abstract class BaseRepository
     /**
      * Update the already instantiated model with the values from the request
      */
-    public function updateFromModel(array $values, BaseModel $model): array
-    {
-        $model->update($values);
-        return $model->toArray();
+    public function updateFromModel(
+        array $values,
+        BaseModel|Model $model,
+        ?SupportCollection $relationToSync = null
+    ): array {
+        return DB::transaction(function () use ($values, $model, $relationToSync) {
+            $model->update($values);
+            $this->syncRelations($relationToSync, $model);
+            return $model->toArray();
+        });
     }
 
     /**
@@ -460,19 +475,6 @@ abstract class BaseRepository
             }
         }
         $this->baseQuery->without($hide);
-    }
-
-    /**
-     * Returns the initials of a given name/phrase
-     */
-    protected function initials(string $value): string
-    {
-        $words = explode(' ', $value);
-        $initials = null;
-        foreach ($words as $word) {
-            $initials .= $word[0];
-        }
-        return strtoupper($initials);
     }
 
     /**
@@ -543,6 +545,44 @@ abstract class BaseRepository
         $order = $order ?? 'id';
         $dir = $dir ?? 'DESC';
         $this->baseQuery->orderByRaw("$order $dir");
+    }
+
+    /**
+     * Sync values in pivot table
+     */
+    public function syncRelations(
+        ?SupportCollection $relationsToSync,
+        BaseModel|Model $baseModel
+    ): void {
+        if ($relationsToSync && !$relationsToSync->isEmpty()) {
+            $relations = is_array($relationsToSync->first()) ? $relationsToSync : [$relationsToSync];
+            foreach ($relations as $relation) {
+                $baseModel->{$relation['relation']}()->sync($relation['ids']);
+            }
+        }
+    }
+
+    /**
+     * Checks if there are dependent records before deleting
+     * @throws \Exception
+     */
+    protected function validateExistRelationship(BaseModel|Model $model): void
+    {
+        $skipRelations = [
+            'audits',
+            'attachments',
+        ];
+
+        $relations = $model->getRelationShip()->filter(function ($relation) use ($skipRelations) {
+            return in_array($relation['type'], ['HasMany', 'HasOne', 'MorphMany'])
+                && !in_array($relation['name'], $skipRelations);
+        });
+
+        foreach ($relations as $relation) {
+            if ($model->{$relation['name']}()->exists()) {
+                throw new Exception("Cannot delete record because it has dependent " . $relation['name']);
+            }
+        }
     }
 
     /**
