@@ -5,7 +5,7 @@
 namespace {{ $config->namespaces->apiController }};
 
 use App\Exceptions\ValidateDeleteException;
-use {{ $config->namespaces->app }}\Http\Controllers\BaseController;
+use {{ $namespaceApp }}\Http\Controllers\BaseController;
 use {{ $config->namespaces->apiRequest }}\Index\IndexAPIRequest;
 use {{ $config->namespaces->apiRequest }}\{{ $config->modelNames->name }}APIRequest;
 use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};

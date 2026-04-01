@@ -6,7 +6,11 @@ namespace App\Services;
 
 use App\Models\BaseModel;
 use App\Repositories\BaseRepository;
+use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 
 abstract class BaseService
 {
@@ -23,9 +27,9 @@ abstract class BaseService
      */
     public function makeModel(): BaseRepository
     {
-        $baseRepo = \App::make($this->repo());
+        $baseRepo = App::make($this->repo());
         if (!$baseRepo instanceof BaseRepository) {
-            throw new \Exception('Class {$this->repo()} must be an instance of BaseRepository');
+            throw new Exception('Class {$this->repo()} must be an instance of BaseRepository');
         }
         $this->repository = $baseRepo;
         return $this->repository;
@@ -37,12 +41,11 @@ abstract class BaseService
     abstract public function repo(): string|BaseRepository;
 
     /**
-     * Call repository to create one record from data property
+     * Call repository to create one record
      */
-    public function create(): array
+    public function create(Request $request): BaseModel|Model
     {
-        $classification = $this->repository->create($this->request->all());
-        return $classification->toArray();
+        return $this->repository->create($request->all());
     }
 
     /**
@@ -56,10 +59,9 @@ abstract class BaseService
     /**
      * Call repository to find a record according to param of search
      */
-    public function search(Request $request): array
+    public function search(Request $request): LengthAwarePaginator
     {
-        $company = $this->repository->executeSearch($request);
-        return $company->toArray();
+        return $this->repository->executeSearch($request);
     }
 
     /**
@@ -73,8 +75,8 @@ abstract class BaseService
     /**
      * Call repository to update record according id
      */
-    public function update(BaseModel $model): array
+    public function update(Request $request, BaseModel $model): BaseModel|Model
     {
-        return $this->repository->updateFromModel($this->request->all(), $model);
+        return $this->repository->updateFromModel($request->all(), $model);
     }
 }

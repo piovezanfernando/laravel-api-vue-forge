@@ -9,11 +9,11 @@ use {{ $config->namespaces->apiRequest }}\Update{{ $config->modelNames->name }}A
 use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use {{ $config->namespaces->app }}\Http\Controllers\AppBaseController;
+use {{ $namespaceApp }}Http\Controllers\BaseController;
 use {{ $config->namespaces->apiResource }}\{{ $config->modelNames->name }}Resource;
 
 {!! $docController !!}
-class {{ $config->modelNames->name }}APIController extends AppBaseController
+class {{ $config->modelNames->name }}APIController extends BaseController
 {
     {!! $docIndex !!}
     public function index(Request $request): JsonResponse

@@ -10,10 +10,10 @@ use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 use {{ $config->namespaces->services }}\{{ $config->modelNames->name }}Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use {{ $config->namespaces->app }}\Http\Controllers\AppBaseController;
+use {{ $namespaceApp }}Http\Controllers\BaseController;
 
 {!! $docController !!}
-class {{ $config->modelNames->name }}APIController extends AppBaseController
+class {{ $config->modelNames->name }}APIController extends BaseController
 {
     public function __construct(private readonly {{ $config->modelNames->name }}Service ${{$config->modelNames->camel}}Service)
     {

@@ -7,7 +7,7 @@ namespace App\Http\Requests\API;
 use App\Models\BaseModel;
 use InfyOm\Generator\Request\APIRequest;
 
-abstract class BaseAPIRequest extends APIRequest
+abstract class BaseRequest extends APIRequest
 {
     /**
      * Provides a detailed description of the expected parameters
