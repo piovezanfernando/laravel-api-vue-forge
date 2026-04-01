@@ -2,9 +2,6 @@
 
 namespace PiovezanFernando\LaravelApiVueForge\Utils;
 
-use DB;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\Column;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use PiovezanFernando\LaravelApiVueForge\Common\GeneratorConfig;
@@ -41,13 +38,6 @@ class TableFieldsGenerator
     public $defaultSearchable;
 
     /** @var array */
-    public $timestamps;
-    public $fullTextIndices;
-
-    /** @var AbstractSchemaManager */
-    private $schemaManager;
-
-    /** @var Column[] */
     private $columns;
 
     /** @var GeneratorField[] */
@@ -58,9 +48,6 @@ class TableFieldsGenerator
 
     /** @var array */
     public $ignoredFields;
-
-    /** @var \Doctrine\DBAL\Schema\Table */
-    public $tableDetails;
 
     public GeneratorConfig $config;
 
@@ -214,8 +201,8 @@ class TableFieldsGenerator
     /**
      * Generates integer text field for database.
      *
+     * @param array $column
      * @param string $dbType
-     * @param Column $column
      *
      * @return GeneratorField
      */
@@ -289,7 +276,7 @@ class TableFieldsGenerator
     /**
      * Generates number field.
      *
-     * @param Column $column
+     * @param array $column
      * @param string $dbType
      *
      * @return GeneratorField
