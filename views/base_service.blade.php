@@ -15,9 +15,6 @@ abstract class BaseService
     /**
      * Repository is injected via Laravel's container when the child service is resolved.
      * Each child class declares its own constructor with the concrete repository type.
-     *
-     * Example in generated service:
-     *   public function __construct(protected readonly UserRepository $repository) {}
      */
     public function __construct(protected readonly BaseRepository $repository) {}
 
