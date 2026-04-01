@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InfyOm\Generator\Utils\ResponseUtil;
+use Illuminate\Routing\Controller;
 
 /**
  * @OA\Server(url="/{{ $apiPrefix }}")
@@ -85,6 +86,16 @@ class BaseController extends Controller
             $message['code'] === 200 => response()->json(ResponseUtil::makeResponse($message['message'], [])),
             default                  => response()->json(ResponseUtil::makeError($message['message']), $message['code']),
         };
+    }
+
+    /**
+     * Alias for sendResult to maintain compatibility with projects using $this->response()
+     *
+     * @param array{code: int, message: string} $message
+     */
+    public function response(array $message): JsonResponse
+    {
+        return $this->sendResult($message);
     }
 
     /**

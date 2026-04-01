@@ -119,6 +119,20 @@ class LaravelApiVueForgeServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/laravel_api_vue_forge.php', 'laravel_api_vue_forge');
 
+        if (! class_exists('InfyOm\Generator\Request\APIRequest')) {
+            class_alias(
+                \PiovezanFernando\LaravelApiVueForge\Request\APIRequest::class,
+                'InfyOm\Generator\Request\APIRequest'
+            );
+        }
+
+        if (! class_exists('InfyOm\Generator\Utils\ResponseUtil')) {
+            class_alias(
+                \PiovezanFernando\LaravelApiVueForge\Utils\ResponseUtil::class,
+                'InfyOm\Generator\Utils\ResponseUtil'
+            );
+        }
+
         $this->app->singleton(GeneratorConfig::class, function () {
             return new GeneratorConfig();
         });
