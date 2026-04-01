@@ -9,7 +9,7 @@ use {{ $config->namespaces->apiRequest }}\Update{{ $config->modelNames->name }}A
 use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use {{ $namespaceApp }}Http\Controllers\BaseController;
+use {{ $config->namespaces->app }}\Http\Controllers\BaseController;
 use {{ $config->namespaces->apiResource }}\{{ $config->modelNames->name }}Resource;
 
 {!! $docController !!}

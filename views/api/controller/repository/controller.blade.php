@@ -10,7 +10,7 @@ use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 use {{ $config->namespaces->services }}\{{ $config->modelNames->name }}Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use {{ $namespaceApp }}Http\Controllers\BaseController;
+use {{ $config->namespaces->app }}\Http\Controllers\BaseController;
 
 {!! $docController !!}
 class {{ $config->modelNames->name }}APIController extends BaseController
