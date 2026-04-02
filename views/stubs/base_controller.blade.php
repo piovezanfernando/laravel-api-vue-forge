@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InfyOm\Generator\Utils\ResponseUtil;
+use Illuminate\Routing\Controller;
 
 /**
  * @OA\Server(url="/{{ $apiPrefix }}")
@@ -75,7 +76,7 @@ class BaseController extends Controller
     }
 
     /**
-     * Route a response array to success or error based on the code key
+     * Encaminha um array de resposta para sucesso ou erro com base na chave 'code'
      *
      * @param array{code: int, message: string} $message
      */

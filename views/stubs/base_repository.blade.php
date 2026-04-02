@@ -2,283 +2,155 @@
     echo "<?php".PHP_EOL;
 @endphp
 
-namespace App\Repositories;
+namespace {{ $namespaceApp }}Repositories;
 
 use App\Models\BaseModel;
-use Closure;
-use Exception;
+use Illuminate\Container\Container as Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Throwable;
 
-abstract class BaseRepository extends ModelCreate
+/**
+ * Class BaseRepository
+ * Base class for all repositories in the application.
+ */
+abstract class BaseRepository
 {
-    /** @var array<int, string> fields that can be used in the search */
-    protected array $fieldSearchable = [];
+    /** @var Model $model */
+    protected $model;
 
-    /** @var array<int, string> fields that are part of the table's FullText index */
-    protected array $fieldsFullText = [];
+    protected Builder $baseQuery;
 
     /**
-     * Get searchable fields array
+     * Standard constructor
+     */
+    public function __construct(protected Application $app)
+    {
+        $this->makeModel();
+        $this->baseQuery = $this->app->make($this->model())->newQuery();
+    }
+
+    /**
+     * Cria um novo registro do modelo
      *
-     * @return array<int, string>
+     * @param  array  $input
+     * @return Model
      */
-    abstract public function getFieldsSearchable(): array;
-
-    // ──────────────────────────────────────────────────────────────
-    //  READ
-    // ──────────────────────────────────────────────────────────────
-
-    /**
-     * Find a single record by its primary key
-     */
-    public function find(int|string $id): Builder|Collection|BaseModel|null
+    public function create(array $input): Model
     {
-        return $this->newBaseQuery()->find($id);
-    }
+        return DB::transaction(function () use ($input) {
+            $model = $this->model->newInstance($input);
+            $model->save();
 
-    /**
-     * Add a where clause to a fresh query
-     */
-    public function findBy(
-        array|string|Closure $column,
-        mixed $value,
-        string $operator = '=',
-        string $boolean = 'and',
-    ): Builder {
-        return $this->newBaseQuery()->where($column, $operator, $value, $boolean);
-    }
-
-    /**
-     * Retrieve all records with optional filter, skip and limit
-     *
-     * @param array<string, mixed> $search
-     * @param array<string>        $columns
-     */
-    public function all(
-        array $search = [],
-        ?int $skip = null,
-        ?int $limit = null,
-        array $columns = ['*'],
-    ): Collection {
-        return $this->allQuery($search, $skip, $limit)->get($columns);
-    }
-
-    /**
-     * Build a filtered query using ->when() for cleaner conditionals
-     *
-     * @param array<string, mixed> $search
-     */
-    public function allQuery(array $search = [], ?int $skip = null, ?int $limit = null): Builder
-    {
-        $query = $this->newBaseQuery();
-
-        collect($search)
-            ->filter(fn (mixed $value, string $key) => in_array($key, $this->getFieldsSearchable()))
-            ->each(fn (mixed $value, string $key) => $query->where($key, $value));
-
-        return $query
-            ->when($skip, fn (Builder $q) => $q->skip($skip))
-            ->when($limit, fn (Builder $q) => $q->limit($limit));
-    }
-
-    /**
-     * Execute the search pipeline and return paginated results
-     */
-    public function executeSearch(Request $request): LengthAwarePaginator
-    {
-        $this->applySearchConditions($request);
-        $this->applyOrdering($request);
-
-        $limit = $request->get('limit') ?? $this->defaultLimit;
-
-        return $this->paginate($limit);
-    }
-
-    /**
-     * Paginate the base query
-     *
-     * @param array<string> $columns
-     */
-    public function paginate(?int $perPage, array $columns = ['*']): LengthAwarePaginator
-    {
-        return match (true) {
-            empty($perPage) => $this->baseQuery->paginate($this->baseQuery->count()),
-            default         => $this->baseQuery->paginate($perPage, $columns),
-        };
-    }
-
-    /**
-     * Retrieves the model name from the table
-     */
-    public function getModelName(): string
-    {
-        return Str::singular(Str::studly($this->model->getTable()));
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  CREATE
-    // ──────────────────────────────────────────────────────────────
-
-    /**
-     * Create a model record within a transaction, optionally syncing pivot relations
-     */
-    public function create(
-        array $input,
-        ?SupportCollection $relationToSync = null,
-    ): Model|null {
-        return DB::transaction(function () use ($input, $relationToSync) {
-            $baseModel = $this->model->newInstance($input);
-            $baseModel->save();
-            $this->syncRelations($relationToSync, $baseModel);
-
-            return $baseModel;
-        });
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  UPDATE
-    // ──────────────────────────────────────────────────────────────
-
-    /**
-     * Update an already-loaded model within a transaction
-     */
-    public function updateFromModel(
-        array $values,
-        BaseModel|Model $model,
-        ?SupportCollection $relationToSync = null,
-    ): BaseModel|Model {
-        return DB::transaction(function () use ($values, $model, $relationToSync) {
-            $model->update($values);
-            $this->syncRelations($relationToSync, $model);
-
-            return $model->refresh();
-        });
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  DELETE
-    // ──────────────────────────────────────────────────────────────
-
-    /**
-     * Delete a record within a transaction after validating dependencies
-     */
-    public function delete(int|string $id): bool|null
-    {
-        return DB::transaction(function () use ($id) {
-            $baseModel = $this->newBaseQuery()->findOrFail($id);
-            $this->validateExistRelationship($baseModel);
-
-            return $baseModel->delete();
+            return $model;
         });
     }
 
     /**
-     * Toggle soft-delete state: deactivate if active, restore if trashed
+     * Remove o registro do modelo
      *
+     * @param  BaseModel|Model  $model
      * @return array{code: int, message: string}
      */
-    public function deleteOrUndelete(BaseModel $model): array
+    public function delete(BaseModel|Model $model): array
     {
-        if ($model->trashed()) {
-            $model->restore();
-
-            return [
-                'code'    => 200,
-                'message' => __($this->getModelName()) . ' successfully reactivated',
-            ];
+        try {
+            $model->delete();
+            return ['code' => 200, 'message' => 'Registro removido com sucesso.'];
+        } catch (Throwable $e) {
+            return ['code' => 400, 'message' => $e->getMessage()];
         }
-
-        $model->delete();
-
-        return [
-            'code'    => 200,
-            'message' => __($this->getModelName()) . ' successfully deactivated',
-        ];
     }
 
-    // ──────────────────────────────────────────────────────────────
-    //  RELATIONS
-    // ──────────────────────────────────────────────────────────────
+    /**
+     * Find model record for given id
+     */
+    public function find($id = null, $columns = ['*'])
+    {
+        if (!$id) return null;
+        $query = $this->model->newQuery();
+        return $query->find($id, $columns);
+    }
 
     /**
-     * Sync pivot (BelongsToMany) relations from a collection of relation definitions
+     * Paginate records for scaffold.
+     */
+    public function paginate(?int $perPage = null, array $columns = ['*']): LengthAwarePaginator
+    {
+        if (empty($perPage)) {
+            return $this->baseQuery->paginate($this->baseQuery->count());
+        }
+
+        return $this->baseQuery->paginate($perPage, $columns);
+    }
+
+    /**
+     * Return searchable fields
+     */
+    abstract public function getFieldsSearchable();
+
+    /**
+     * Configure the Model
+     */
+    abstract public function model();
+
+    /**
+     * Make Model instance
      *
-     * Each item in $relationsToSync should have: ['relation' => string, 'ids' => array]
+     * @throws \Exception
      */
-    public function syncRelations(
-        ?SupportCollection $relationsToSync,
-        BaseModel|Model $baseModel,
-    ): void {
-        if (! $relationsToSync?->isNotEmpty()) {
-            return;
+    public function makeModel(): Model
+    {
+        $model = $this->app->make($this->model());
+
+        if (!$model instanceof Model) {
+            throw new \Exception("Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model");
         }
 
-        $relations = is_array($relationsToSync->first())
-            ? $relationsToSync
-            : collect([$relationsToSync]);
-
-        $relations->each(
-            fn (array $relation) => $baseModel->{$relation['relation']}()->sync($relation['ids']),
-        );
+        return $this->model = $model;
     }
 
-    // ──────────────────────────────────────────────────────────────
-    //  PROTECTED HELPERS
-    // ──────────────────────────────────────────────────────────────
-
     /**
-     * Delegates search logic to the SearchService
+     * Search records from database
      */
-    protected function applySearchConditions(Request $request): void
+    public function search()
     {
-        if ($request->exists('search')) {
-            $this->searchService->advancedSearch($request, $this->fieldsFullText);
-        } else {
-            $this->searchService->findAllFieldsAnd($request, $this->getFieldsSearchable());
-        }
+        return $this->baseQuery->get();
     }
 
     /**
-     * Apply ordering; defaults to 'id DESC' when no params are given
-     */
-    protected function applyOrdering(Request $request): void
-    {
-        $order = $request->get('order') ?? $request->get('order_by');
-        $dir = $request->get('direction') ?? 'DESC';
-
-        $sortBy = match (true) {
-            ! empty($order)                => "{$order} {$dir}",
-            ! empty($this->sortParameters) => $this->sortParameters,
-            default                        => 'id DESC',
-        };
-
-        $this->baseQuery->orderByRaw($sortBy);
-    }
-
-    /**
-     * Validate that the model has no dependent relationships before deletion
+     * Atualiza um registro do modelo
      *
-     * @throws Exception
+     * @param  array  $input
+     * @param  int|Model  $idOrModel
+     * @return Model|null
      */
-    protected function validateExistRelationship(BaseModel|Model $model): void
+    public function update(array $input, int|Model $idOrModel): ?Model
     {
-        $skipRelations = ['audits', 'attachments'];
+        $model = ($idOrModel instanceof Model) ? $idOrModel : $this->find($idOrModel);
 
-        $dependentRelations = $model->getRelationShip()
-            ->filter(fn (array $relation) => in_array($relation['type'], ['HasMany', 'HasOne', 'MorphMany'])
-                && ! in_array($relation['name'], $skipRelations))
-            ->filter(fn (array $relation) => $model->{$relation['name']}()->exists());
-
-        if ($dependentRelations->isNotEmpty()) {
-            $names = $dependentRelations->pluck('name')->implode(', ');
-            throw new Exception("Cannot delete record because it has dependent relations: {$names}");
+        if (!$model) {
+            return null;
         }
+
+        $model->fill($input);
+        $model->save();
+
+        return $model;
+    }
+
+    /**
+     * Update from Model instance (legacy support)
+     */
+    public function updateFromModel($request, BaseModel $model): array
+    {
+        $model->update($request->all());
+        return $model->toArray();
     }
 }
