@@ -61,7 +61,10 @@ abstract class BaseService
     /**
      * Configura o Repositório
      */
-    abstract public function repo(): string|BaseRepository;
+    public function repo(): string|BaseRepository
+    {
+        return '';
+    }
 
     /**
      * Chama o repositório para remover um registro de acordo com o modelo

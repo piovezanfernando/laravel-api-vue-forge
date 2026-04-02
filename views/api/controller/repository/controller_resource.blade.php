@@ -14,9 +14,6 @@ use Illuminate\Http\JsonResponse;
 {!! $docController !!}
 class {{ $config->modelNames->name }}APIController extends BaseController
 {
-    public function __construct(private readonly {{ $config->modelNames->name }}Service ${{$config->modelNames->camel}}Service)
-    {
-    }
 
     {!! $docDestroy !!}
     public function destroy({{ $config->modelNames->name }} ${{ $config->modelNames->camel }}): JsonResponse

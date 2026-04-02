@@ -117,9 +117,9 @@ abstract class BaseRepository
     }
 
     /**
-     * Search records from database
+     * Realiza a busca/filtragem dos dados
      */
-    public function search()
+    public function search(?Request $request = null)
     {
         return $this->baseQuery->get();
     }

@@ -2,9 +2,9 @@
     echo "<?php".PHP_EOL;
 @endphp
 
-namespace App\Services;
+namespace {{ $namespaceApp }}Services;
 
-use App\Models\BaseModel;
+use {{ $namespaceApp }}Models\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

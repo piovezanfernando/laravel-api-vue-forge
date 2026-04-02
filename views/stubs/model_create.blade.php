@@ -2,10 +2,10 @@
     echo "<?php".PHP_EOL;
 @endphp
 
-namespace App\Repositories;
+namespace {{ $namespaceApp }}Repositories;
 
-use App\Models\BaseModel;
-use App\Services\SearchService;
+use {{ $namespaceApp }}Models\BaseModel;
+use {{ $namespaceApp }}Services\SearchService;
 use Exception;
 use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Builder;

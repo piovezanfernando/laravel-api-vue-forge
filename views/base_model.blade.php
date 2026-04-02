@@ -36,6 +36,34 @@ abstract class BaseModel extends Model
     protected array $relationsBySearch = [];
 
     /**
+     * Retorna os relacionamentos disponíveis para busca
+     *
+     * @return array
+     */
+    public function getRelationsBySearch(): array
+    {
+        return $this->relationsBySearch ?? [];
+    }
+
+    /**
+     * Retorna o tipo de cast para um campo específico (usado na busca dinâmica)
+     *
+     * @param  string  $field
+     * @return string
+     */
+    public static function getFieldType(string $field): string
+    {
+        $instance = new static();
+        $casts = $instance->getCasts();
+
+        if (array_key_exists($field, $casts)) {
+            return $casts[$field];
+        }
+
+        return '';
+    }
+
+    /**
      * Cache for model relationships
      */
     protected ?Collection $relationshipsCache = null;
@@ -63,8 +91,7 @@ abstract class BaseModel extends Model
             if (
                 $method->class !== $this::class ||
                 $method->getNumberOfParameters() > 0 ||
-                $method->getName() === __FUNCTION__ ||
-                $method->getName() === 'getRelationShip'
+                $method->getName() === __FUNCTION__
             ) {
                 continue;
             }
