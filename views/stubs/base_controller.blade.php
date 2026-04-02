@@ -94,7 +94,7 @@ class BaseController extends Controller
     protected function initializeResourceClass(): void
     {
         $modelName = str_replace('APIController', '', class_basename(static::class));
-        $baseNamespace = 'App\\Http\\Resources\\API';
+        $baseNamespace = '{{ $config->namespaces->apiResource }}';
         $this->resourceClass = "{$baseNamespace}\\{$modelName}Resource";
     }
 
@@ -107,7 +107,7 @@ class BaseController extends Controller
     {
         $callingClass = class_basename(static::class);
         $serviceName = str_replace('APIController', 'Service', $callingClass);
-        $serviceClass = "App\\Services\\{$serviceName}";
+        $serviceClass = "{{ $config->namespaces->services }}\\{$serviceName}";
 
         if (! class_exists($serviceClass)) {
             throw new \Exception("Class {$serviceClass} not found.");
