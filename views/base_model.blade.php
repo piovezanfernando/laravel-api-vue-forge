@@ -2,7 +2,7 @@
     echo "<?php".PHP_EOL;
 @endphp
 
-namespace App\Models;
+namespace {{ $config->namespaces->model }};
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

@@ -2,10 +2,10 @@
     echo "<?php".PHP_EOL;
 @endphp
 
-namespace {{ $namespaceApp }}Services;
+namespace {{ $config->namespaces->services }};
 
-use App\Models\BaseModel;
-use App\Repositories\BaseRepository;
+use {{ $config->namespaces->model }}\BaseModel;
+use {{ $config->namespaces->repository }}\BaseRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
@@ -21,6 +21,9 @@ abstract class BaseService
 {
     /** @var BaseRepository $repository */
     protected $repository;
+
+    /** @var Request $request */
+    protected $request;
 
     /**
      * Construtor padrão usado anteriormente na arquitetura legada

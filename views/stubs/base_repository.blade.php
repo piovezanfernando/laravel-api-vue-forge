@@ -4,7 +4,7 @@
 
 namespace {{ $namespaceApp }}Repositories;
 
-use App\Models\BaseModel;
+use {{ $config->namespaces->model }}\BaseModel;
 use Illuminate\Container\Container as Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -121,7 +121,9 @@ abstract class BaseRepository
      */
     public function search(?Request $request = null)
     {
-        return $this->baseQuery->get();
+        return app({{ $config->namespaces->services }}\SearchService::class)
+            ->apply($this->baseQuery, $request ?? request())
+            ->get();
     }
 
     /**
