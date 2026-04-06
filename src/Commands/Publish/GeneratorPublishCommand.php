@@ -20,9 +20,10 @@ class GeneratorPublishCommand extends PublishBaseCommand
      */
     protected $description = 'Publishes & init api routes, base controller, base test cases traits.';
 
+
     public function handle()
     {
-        $this->updateRouteServiceProvider();
+
         $this->publishTestCases();
         $this->publishBaseController();
         $repositoryPattern = config('laravel_api_vue_forge.options.repository_pattern', true);
@@ -31,12 +32,15 @@ class GeneratorPublishCommand extends PublishBaseCommand
         $baseRequest = config('laravel_api_vue_forge.options.base_request', true);
 
         if ($repositoryPattern) {
+            $this->publishModelCreate();
+            $this->publishSearchService();
             $this->publishBaseRepository();
         }
         if ($this->option('localized')) {
             $this->publishLocaleFiles();
         }
         if ($baseModel) {
+            $this->publishBelongsToCompany();
             $this->publishBaseModel();
         }
         if ($baseService) {
@@ -45,31 +49,12 @@ class GeneratorPublishCommand extends PublishBaseCommand
         if ($baseRequest) {
             $this->publishBaseRequest();
         }
-
         if ($this->confirm('Do you want to setup the SPA route in web.php?', true)) {
             $this->call('apiforge:setup-spa');
         }
     }
 
-    private function updateRouteServiceProvider()
-    {
-        $routeServiceProviderPath = app_path('Providers'.DIRECTORY_SEPARATOR.'RouteServiceProvider.php');
 
-        if (!file_exists($routeServiceProviderPath)) {
-            $this->error("Route Service provider not found on $routeServiceProviderPath");
-
-            return;
-        }
-
-        $fileContent = g_filesystem()->getFile($routeServiceProviderPath);
-
-        $search = "Route::middleware('api')".apiforge_nl().str(' ')->repeat(16)."->prefix('api')";
-        $beforeContent = str($fileContent)->before($search);
-        $afterContent = str($fileContent)->after($search);
-
-        $finalContent = $beforeContent.$search.apiforge_nl().str(' ')->repeat(16)."->as('api.')".$afterContent;
-        g_filesystem()->createFile($routeServiceProviderPath, $finalContent);
-    }
 
     private function publishTestCases()
     {
@@ -108,25 +93,46 @@ class GeneratorPublishCommand extends PublishBaseCommand
     private function publishBaseController()
     {
         $controllerPath = app_path('Http/Controllers/');
-        $fileName = 'AppBaseController.php';
+        $fileName = 'BaseController.php';
 
         if (file_exists($controllerPath.$fileName) && !$this->confirmOverwrite($fileName)) {
             return;
         }
 
-        $templateData = view('laravel-api-vue-forge::stubs.app_base_controller', [
+        $templateData = view('laravel-api-vue-forge::stubs.base_controller', [
             'namespaceApp' => $this->getLaravel()->getNamespace(),
             'apiPrefix'    => config('laravel_api_vue_forge.api_prefix'),
         ])->render();
 
         g_filesystem()->createFile($controllerPath.$fileName, $templateData);
 
-        $this->info('AppBaseController created');
+        $this->info('BaseController created');
+    }
+
+    private function publishBelongsToCompany()
+    {
+        $traitsPath = app_path('Traits/');
+
+        $fileName = 'BelongsToCompany.php';
+
+        if (file_exists($traitsPath.$fileName) && !$this->confirmOverwrite($fileName)) {
+            return;
+        }
+
+        g_filesystem()->createDirectoryIfNotExist($traitsPath);
+
+        $templateData = view('laravel-api-vue-forge::stubs.belongs_to_company', [
+            'namespaceApp' => $this->getLaravel()->getNamespace(),
+        ])->render();
+
+        g_filesystem()->createFile($traitsPath.$fileName, $templateData);
+
+        $this->info('BelongsToCompany trait created');
     }
 
     private function publishBaseModel()
     {
-        $templateData = view('laravel-api-vue-forge::app_base_model', [
+        $templateData = view('laravel-api-vue-forge::base_model', [
             'namespaceApp' => $this->getLaravel()->getNamespace(),
         ])->render();
 
@@ -135,12 +141,12 @@ class GeneratorPublishCommand extends PublishBaseCommand
 
         g_filesystem()->createFile($modelPath.$fileName, $templateData);
 
-        $this->info('AppBaseModel created');
+        $this->info('BaseModel created');
     }
 
     private function publishBaseService()
     {
-        $templateData = view('laravel-api-vue-forge::app_base_service', [
+        $templateData = view('laravel-api-vue-forge::base_service', [
             'namespaceApp' => $this->getLaravel()->getNamespace(),
         ])->render();
 
@@ -149,21 +155,63 @@ class GeneratorPublishCommand extends PublishBaseCommand
 
         g_filesystem()->createFile($modelPath.$fileName, $templateData);
 
-        $this->info('AppBaseService created');
+        $this->info('BaseService created');
     }
 
     private function publishBaseRequest()
     {
-        $templateData = view('laravel-api-vue-forge::app_base_request', [
+        $templateData = view('laravel-api-vue-forge::base_request', [
             'namespaceApp' => $this->getLaravel()->getNamespace(),
         ])->render();
 
-        $modelPath = app_path('Requests/API/');
-        $fileName = 'BaseAPIRequest.php';
+        $modelPath = app_path('Http/Requests/API/');
+        $fileName = 'BaseRequest.php';
 
         g_filesystem()->createFile($modelPath.$fileName, $templateData);
 
-        $this->info('AppBaseService created');
+        $this->info('BaseRequest created');
+    }
+
+    private function publishModelCreate()
+    {
+        $repositoryPath = app_path('Repositories/');
+
+        $fileName = 'ModelCreate.php';
+
+        if (file_exists($repositoryPath.$fileName) && !$this->confirmOverwrite($fileName)) {
+            return;
+        }
+
+        g_filesystem()->createDirectoryIfNotExist($repositoryPath);
+
+        $templateData = view('laravel-api-vue-forge::stubs.model_create', [
+            'namespaceApp' => $this->getLaravel()->getNamespace(),
+        ])->render();
+
+        g_filesystem()->createFile($repositoryPath.$fileName, $templateData);
+
+        $this->info('ModelCreate created');
+    }
+
+    private function publishSearchService()
+    {
+        $servicePath = app_path('Services/');
+
+        $fileName = 'SearchService.php';
+
+        if (file_exists($servicePath.$fileName) && !$this->confirmOverwrite($fileName)) {
+            return;
+        }
+
+        g_filesystem()->createDirectoryIfNotExist($servicePath);
+
+        $templateData = view('laravel-api-vue-forge::stubs.search_service', [
+            'namespaceApp' => $this->getLaravel()->getNamespace(),
+        ])->render();
+
+        g_filesystem()->createFile($servicePath.$fileName, $templateData);
+
+        $this->info('SearchService created');
     }
 
     private function publishBaseRepository()

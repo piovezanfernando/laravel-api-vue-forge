@@ -2,6 +2,8 @@
     echo "<?php".PHP_EOL;
 @endphp
 
+namespace {{ $namespacesTests }};
+
 use Illuminate\Testing\TestResponse;
 
 trait ApiTestTrait
