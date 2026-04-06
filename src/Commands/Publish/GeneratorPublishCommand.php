@@ -57,7 +57,7 @@ class GeneratorPublishCommand extends PublishBaseCommand
         if ($baseRequest) {
             $this->publishBaseRequest();
         }
-
+``
         if ($this->confirm('Do you want to setup the SPA route in web.php?', true)) {
             $this->call('apiforge:setup-spa');
         }
@@ -133,6 +133,7 @@ class GeneratorPublishCommand extends PublishBaseCommand
 
         $templateData = view('laravel-api-vue-forge::stubs.belongs_to_company', [
             'namespaceApp' => $this->getLaravel()->getNamespace(),
+            'config'       => $this->config,
         ])->render();
 
         g_filesystem()->createFile($traitsPath.$fileName, $templateData);
@@ -198,6 +199,7 @@ class GeneratorPublishCommand extends PublishBaseCommand
 
         $templateData = view('laravel-api-vue-forge::stubs.model_create', [
             'namespaceApp' => $this->getLaravel()->getNamespace(),
+            'config'       => $this->config,
         ])->render();
 
         g_filesystem()->createFile($repositoryPath.$fileName, $templateData);
@@ -219,6 +221,7 @@ class GeneratorPublishCommand extends PublishBaseCommand
 
         $templateData = view('laravel-api-vue-forge::stubs.search_service', [
             'namespaceApp' => $this->getLaravel()->getNamespace(),
+            'config'       => $this->config,
         ])->render();
 
         g_filesystem()->createFile($servicePath.$fileName, $templateData);

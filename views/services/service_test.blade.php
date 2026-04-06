@@ -21,14 +21,9 @@ test('create {{ $config->modelNames->human }} by service', function () {
 
     $created{{ $config->modelNames->name }} = $this->{{$config->modelNames->camel}}Service->create($request);
 
-    expect($created{{ $config->modelNames->name }})->toHaveKey('id')
-        ->and($created{{ $config->modelNames->name }}['id'])->not->toBeNull('Created {{ $config->modelNames->human }} must have id specified')
-        ->and($this
-            ->{{$config->modelNames->camel}}Repository
-            ->find($created{{ $config->modelNames->name }}['id']))
-            ->not
-            ->toBeNull('{{ $config->modelNames->name }} with given id must be in DB');
-    $this->assertModelData($request->all(), $created{{ $config->modelNames->name }});
+    expect($created{{ $config->modelNames->name }})->not->toBeNull()
+        ->and($this->{{$config->modelNames->camel}}Repository->find($created{{ $config->modelNames->name }}->id))->not->toBeNull();
+    $this->assertModelData($request->all(), $created{{ $config->modelNames->name }}->toArray());
 });
 
 test('delete {{ $config->modelNames->human }} by service', function () {
@@ -36,8 +31,8 @@ test('delete {{ $config->modelNames->human }} by service', function () {
 
     $delete{{ $config->modelNames->name }} = $this->{{$config->modelNames->camel}}Service->delete($data);
 
-    expect($delete{{ $config->modelNames->name }}['code'] === 200)->toBeTrue()
-        ->and($this->{{$config->modelNames->camel}}Repository->find($data['id']))->toBeNull('{{ $config->modelNames->name }} should not exist in DB');
+    expect($delete{{ $config->modelNames->name }}['code'])->toBe(200)
+        ->and($this->{{$config->modelNames->camel}}Repository->find($data->id))->toBeNull();
 });
 
 test('read all {{ $config->modelNames->human }} by service', function () {
@@ -46,8 +41,8 @@ test('read all {{ $config->modelNames->human }} by service', function () {
     $req = new Request(['limit' => 1, 'direction' => 'desc', 'hide_relation' => '*']);
     $db{{ $config->modelNames->name }} = $this->{{$config->modelNames->camel}}Service->search($req);
 
-    expect($db{{ $config->modelNames->name }})->toHaveKey('data');
-    $this->assertModelData($db{{ $config->modelNames->name }}['data'][0], $data->toArray());
+    expect($db{{ $config->modelNames->name }}->isNotEmpty())->toBeTrue();
+    $this->assertModelData($db{{ $config->modelNames->name }}->first()->toArray(), $data->toArray());
 });
 
 test('update {{ $config->modelNames->human }} by service', function () {
