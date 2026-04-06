@@ -122,7 +122,7 @@ abstract class BaseRepository
      */
     public function search(?Request $request = null)
     {
-        $searchService = new {{ $config->namespaces->services }}\SearchService($this->baseQuery, $this->model);
+        $searchService = new SearchService($this->baseQuery, $this->model);
         return $searchService->findAllFieldsAnd($request ?? request(), $this->getFieldsSearchable())->get();
     }
 
@@ -145,14 +145,5 @@ abstract class BaseRepository
         $model->save();
 
         return $model;
-    }
-
-    /**
-     * Update from Model instance (legacy support)
-     */
-    public function updateFromModel($request, BaseModel $model): array
-    {
-        $model->update($request->all());
-        return $model->toArray();
     }
 }
