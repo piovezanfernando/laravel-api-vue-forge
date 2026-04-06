@@ -2,7 +2,7 @@
     echo "<?php".PHP_EOL;
 @endphp
 
-namespace {{ $config->namespaces->model }};
+namespace {{ $namespaceApp }}Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +24,16 @@ abstract class BaseModel extends Model
     protected $appends = [
         'is_active',
     ];
+
+    /**
+     * Accessor for is_active
+     */
+    protected function isActive(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => (bool)($this->attributes['is_active'] ?? true),
+        );
+    }
 
     /**
      * Informs which fields should not be saved in uppercase if the trait is used

@@ -2,10 +2,10 @@
     echo "<?php".PHP_EOL;
 @endphp
 
-namespace {{ $config->namespaces->services }};
+namespace {{ $namespaceApp }}Services;
 
-use {{ $config->namespaces->model }}\BaseModel;
-use {{ $config->namespaces->repository }}\BaseRepository;
+use {{ $namespaceApp }}Models\BaseModel;
+use {{ $namespaceApp }}Repositories\BaseRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
