@@ -109,7 +109,7 @@ abstract class BaseService
     protected function instanceRepository(): void
     {
         $repo = $this->repo();
-        if (is_string($repo)) {
+        if (is_string($repo) && !empty($repo)) {
             $this->repository = app($repo);
         } else {
             $this->repository = $repo;
