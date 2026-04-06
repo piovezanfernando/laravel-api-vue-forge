@@ -34,7 +34,7 @@ abstract class BaseRepository
     public function __construct(protected Application $app)
     {
         $this->makeModel();
-        $this->baseQuery = $this->app->make($this->model())->newQuery();
+        $this->resetBaseQuery();
     }
 
     /**
@@ -118,10 +118,21 @@ abstract class BaseRepository
     }
 
     /**
+     * Resets the base query to prevent stale state between operations
+     */
+    public function resetBaseQuery(): static
+    {
+        $this->baseQuery = $this->app->make($this->model())->newQuery();
+
+        return $this;
+    }
+
+    /**
      * Realiza a busca/filtragem dos dados
      */
     public function search(?Request $request = null)
     {
+        $this->resetBaseQuery();
         $searchService = new SearchService($this->baseQuery, $this->model);
         return $searchService->findAllFieldsAnd($request ?? request(), $this->getFieldsSearchable())->get();
     }

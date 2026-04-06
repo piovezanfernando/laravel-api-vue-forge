@@ -8,8 +8,7 @@ use {{ $config->namespaces->repository }}\{{ $config->modelNames->name }}Reposit
 use Illuminate\Http\Request;
 
 uses(\Tests\ApiTestTrait::class);
-uses(\Illuminate\Foundation\Testing\DatabaseTransactions::class);
-uses(\Illuminate\Foundation\Testing\DatabaseMigrations::class);
+uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
 beforeEach(function () {
     $this->{{ $config->modelNames->camel }}Service = app({{ $config->modelNames->name }}Service::class);

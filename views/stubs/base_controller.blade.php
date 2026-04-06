@@ -19,6 +19,7 @@ use Illuminate\Routing\Controller;
  * This class should be parent class for other API controllers
  * Class BaseController
  */
+#[\AllowDynamicProperties]
 class BaseController extends Controller
 {
     protected string $resourceClass;
