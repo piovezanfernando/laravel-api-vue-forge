@@ -2,9 +2,10 @@
     echo "<?php".PHP_EOL;
 @endphp
 
-namespace {{ $namespaceApp }}Repositories;
+namespace {{ $config->namespaces->repository }};
 
 use {{ $config->namespaces->model }}\BaseModel;
+use {{ $config->namespaces->services }}\SearchService;
 use Illuminate\Container\Container as Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -121,9 +122,8 @@ abstract class BaseRepository
      */
     public function search(?Request $request = null)
     {
-        return app({{ $config->namespaces->services }}\SearchService::class)
-            ->apply($this->baseQuery, $request ?? request())
-            ->get();
+        $searchService = new {{ $config->namespaces->services }}\SearchService($this->baseQuery, $this->model);
+        return $searchService->findAllFieldsAnd($request ?? request(), $this->getFieldsSearchable())->get();
     }
 
     /**

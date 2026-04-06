@@ -2,9 +2,9 @@
     echo "<?php".PHP_EOL;
 @endphp
 
-namespace {{ $namespaceApp }}Services;
+namespace {{ $config->namespaces->services }};
 
-use {{ $namespaceApp }}Models\BaseModel;
+use {{ $config->namespaces->model }}\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -256,5 +256,13 @@ class SearchService
             : $parts;
 
         $this->baseQuery->whereBetween($field, [$start, $end]);
+    }
+
+    /**
+     * Finalizes the query and returns the result collection
+     */
+    public function get(): Collection
+    {
+        return $this->baseQuery->get();
     }
 }
