@@ -41,16 +41,6 @@ class {{ $config->modelNames->name }} extends BaseModel
 @if($customUpdatedAt)@tab()const UPDATED_AT = '{{ $customUpdatedAt }}';@nls(2)@endif
 
     /**
-     * Provides a detailed description of the expected parameters
-     * in the body of an HTTP request.
-     *
-     * @var array<string, array<string, string>>
-     */
-    protected array $fieldDescriptions = [
-        {!! $fieldDescriptions !!}
-    ];
-
-    /**
      * Invalidate the cache automatically
      * upon update in the database.
      */
@@ -69,6 +59,16 @@ class {{ $config->modelNames->name }} extends BaseModel
      * @var array<int, string>
      */
     protected array $with = [];
+
+    /**
+     * Provides a detailed description of the expected parameters
+     * in the body of an HTTP request.
+     *
+     * @var array<string, array<string, string>>
+     */
+    public static function getFieldDescription(): array
+        return {!! $fieldDescriptions !!}
+    ];
 
     {!! $relations !!}
 
